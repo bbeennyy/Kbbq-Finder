@@ -81,5 +81,15 @@
     <script src='https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js'></script>
     <script src='{{ url_for('static', filename='js/main.js') }}'></script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap&libraries=places"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.addEventListener('click', function(event) {
+                if (event.target.classList.contains('bg-purple-500') && event.target.textContent.trim() === 'Invite Friend') {
+                    const restaurantId = event.target.getAttribute('data-restaurant-id');
+                    showInviteForm(restaurantId);
+                }
+            });
+        });
+    </script>
 </body>
 </html>
