@@ -26,34 +26,22 @@ function initMap() {
 
 function initCustomAutocomplete() {
     const input = document.getElementById("autocomplete");
-    const options = {
+    autocomplete = new google.maps.places.Autocomplete(input, {
         types: ['geocode'],
         fields: ['place_id', 'geometry', 'formatted_address']
-    };
-    autocomplete = new google.maps.places.Autocomplete(input, options);
+    });
 
     autocomplete.addListener('place_changed', function() {
         const place = autocomplete.getPlace();
-        if (!place.geometry) {
-            console.log("No details available for input: '" + place.name + "'");
-            return;
+        if (place.geometry) {
+            map.setCenter(place.geometry.location);
+            map.setZoom(15);
         }
-        
-        input.value = place.formatted_address;
-        map.setCenter(place.geometry.location);
-        map.setZoom(15);
     });
 }
 
 function searchRestaurants() {
-    const input = document.getElementById("autocomplete");
-    const place = autocomplete.getPlace();
-    let location = input.value;
-
-    if (place && place.geometry) {
-        location = place.formatted_address;
-    }
-
+    const location = document.getElementById("autocomplete").value;
     const filters = Array.from(document.querySelectorAll('input[name="filters"]:checked')).map(el => el.value);
     
     document.getElementById("loading").classList.remove("hidden");
@@ -68,10 +56,7 @@ function searchRestaurants() {
         body: formData
     })
     .then(response => response.json())
-    .then(data => {
-        document.getElementById("loading").classList.add("hidden");
-        displayRestaurants(data);
-    })
+    .then(displayRestaurants)
     .catch(error => {
         console.error('Error:', error);
         document.getElementById("loading").classList.add("hidden");
@@ -80,15 +65,14 @@ function searchRestaurants() {
 }
 
 function displayRestaurants(restaurants) {
+    document.getElementById("loading").classList.add("hidden");
     const resultsContainer = document.getElementById("results");
     resultsContainer.innerHTML = "";
 
     clearMarkers();
 
     restaurants.forEach(restaurant => {
-        const card = createRestaurantCard(restaurant);
-        resultsContainer.appendChild(card);
-
+        resultsContainer.appendChild(createRestaurantCard(restaurant));
         addMarker(restaurant);
     });
 
@@ -244,11 +228,4 @@ function initDarkMode() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof google === 'undefined') {
-        console.error('Google Maps API failed to load');
-        alert('An error occurred while loading the map. Please refresh the page and try again.');
-    } else {
-        initMap();
-    }
-});
+window.initMap = initMap;
