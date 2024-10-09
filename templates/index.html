@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korean BBQ Restaurant Finder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8 text-center">Korean BBQ Restaurant Finder</h1>
+        
+        <div class="mb-8">
+            <input type="text" id="location" placeholder="Enter zip code or address" class="w-full p-2 border rounded">
+            <button onclick="searchRestaurants()" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Search</button>
+        </div>
+
+        <div class="flex flex-col md:flex-row">
+            <div id="results" class="w-full md:w-1/2 pr-4"></div>
+            <div id="map" class="w-full md:w-1/2 h-96"></div>
+        </div>
+    </div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap" async defer></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+@import 'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css';
+
+.restaurant-card {
+    transition: transform 0.3s ease-in-out;
+}
+
+.restaurant-card:hover {
+    transform: scale(1.05);
+}
