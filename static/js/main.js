@@ -169,14 +169,22 @@ function closeInviteForm() {
 }
 
 function sendInvitation() {
-    const restaurantId = document.getElementById('restaurantId').value;
-    const recipientUsername = document.getElementById('recipientUsername').value;
-    const message = document.getElementById('invitationMessage').value;
+    const restaurantId = document.getElementById('restaurantId');
+    const recipientUsername = document.getElementById('recipientUsername');
+    const message = document.getElementById('invitationMessage');
+    const dateTime = document.getElementById('invitationDateTime');
+
+    if (!restaurantId || !recipientUsername || !message || !dateTime) {
+        console.error('One or more form elements are missing');
+        alert('Error: Unable to send invitation. Please try again.');
+        return;
+    }
 
     const formData = new FormData();
-    formData.append('restaurant_id', restaurantId);
-    formData.append('recipient_username', recipientUsername);
-    formData.append('message', message);
+    formData.append('restaurant_id', restaurantId.value);
+    formData.append('recipient_username', recipientUsername.value);
+    formData.append('message', message.value);
+    formData.append('date_time', dateTime.value);
 
     fetch('/send_invitation', {
         method: 'POST',
@@ -191,7 +199,10 @@ function sendInvitation() {
             alert('Error: ' + data.message);
         }
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while sending the invitation. Please try again.');
+    });
 }
 
 function recenterMap() {

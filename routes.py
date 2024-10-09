@@ -5,6 +5,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from app import app, db
 from models import Restaurant, User, Invitation
 from urllib.parse import quote
+from datetime import datetime
 
 GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY")
 
@@ -162,6 +163,15 @@ def send_invitation():
     recipient_username = request.form.get('recipient_username')
     restaurant_id = request.form.get('restaurant_id')
     message = request.form.get('message')
+    date_time_str = request.form.get('date_time')
+
+    if not all([recipient_username, restaurant_id, date_time_str]):
+        return jsonify({'status': 'error', 'message': 'Missing required information'}), 400
+
+    try:
+        date_time = datetime.strptime(date_time_str, '%Y-%m-%dT%H:%M')
+    except ValueError:
+        return jsonify({'status': 'error', 'message': 'Invalid date and time format'}), 400
 
     recipient = User.query.filter_by(username=recipient_username).first()
     if not recipient:
@@ -171,7 +181,13 @@ def send_invitation():
     if not restaurant:
         return jsonify({'status': 'error', 'message': 'Restaurant not found'}), 404
 
-    invitation = Invitation(sender_id=current_user.id, recipient_id=recipient.id, restaurant_id=restaurant_id, message=message)
+    invitation = Invitation(
+        sender_id=current_user.id,
+        recipient_id=recipient.id,
+        restaurant_id=restaurant_id,
+        message=message,
+        date_time=date_time
+    )
     db.session.add(invitation)
     db.session.commit()
 

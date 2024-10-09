@@ -51,5 +51,6 @@ class Invitation(db.Model):
     message = db.Column(db.String(200))
     status = db.Column(db.String(20), default='pending')  # pending, accepted, declined
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    date_time = db.Column(db.DateTime, nullable=False)  # New field for invitation date and time
 
     restaurant = db.relationship('Restaurant', backref='invitations')
