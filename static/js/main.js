@@ -89,7 +89,7 @@ function createRestaurantCard(restaurant) {
         <button onclick="toggleFavorite(${restaurant.id})" id="favorite-btn-${restaurant.id}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mr-2">
             Add to Favorites
         </button>
-        <button class="invite-friend-btn bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600" data-restaurant-id="${restaurant.id}">
+        <button onclick="showInviteForm(${restaurant.id})" class="invite-friend-btn bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
             Invite Friend
         </button>
     `;
@@ -149,6 +149,7 @@ function toggleFavorite(restaurantId) {
                 favoriteBtn.textContent = isFavorite ? 'Add to Favorites' : 'Remove from Favorites';
                 favoriteBtn.classList.toggle('bg-green-500');
                 favoriteBtn.classList.toggle('bg-red-500');
+                showAcceptancePopup('Success', data.message);
             } else {
                 showAcceptancePopup('Error', data.message);
             }
@@ -281,11 +282,4 @@ document.addEventListener('DOMContentLoaded', function() {
     // Hide pop-ups on initial load
     document.getElementById('inviteModal').style.display = 'none';
     document.getElementById('acceptancePopup').style.display = 'none';
-    
-    document.body.addEventListener('click', function(event) {
-        if (event.target.classList.contains('invite-friend-btn')) {
-            const restaurantId = event.target.getAttribute('data-restaurant-id');
-            showInviteForm(restaurantId);
-        }
-    });
 });
