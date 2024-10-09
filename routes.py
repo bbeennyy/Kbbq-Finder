@@ -13,12 +13,17 @@ GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY")
 
 @app.route('/')
 def index():
-    return render_template('index.html', api_key=GOOGLE_MAPS_API_KEY)
+    mood = request.args.get('mood')
+    food = request.args.get('food')
+    if mood and food:
+        return render_template('index.html', api_key=GOOGLE_MAPS_API_KEY, mood=mood, food=food)
+    return render_template('wizard.html')
 
 @app.route('/search', methods=['POST'])
 def search():
     location = request.form.get('location')
     filters = request.form.getlist('filters')
+    food_type = request.form.get('food_type', 'korean bbq')
     
     # Geocode the location
     geocode_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={quote(location)}&key={GOOGLE_MAPS_API_KEY}"
@@ -30,8 +35,8 @@ def search():
     lat = geocode_response['results'][0]['geometry']['location']['lat']
     lng = geocode_response['results'][0]['geometry']['location']['lng']
     
-    # Search for Korean BBQ restaurants
-    search_url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={lat},{lng}&radius=5000&type=restaurant&keyword=korean%20bbq&key={GOOGLE_MAPS_API_KEY}"
+    # Search for restaurants
+    search_url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={lat},{lng}&radius=5000&type=restaurant&keyword={quote(food_type)}&key={GOOGLE_MAPS_API_KEY}"
     search_response = requests.get(search_url).json()
     
     if search_response['status'] != 'OK':

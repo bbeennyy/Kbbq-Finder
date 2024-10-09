@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
+    {% if mood and food %}
+    <div id="user-preferences" data-mood="{{ mood }}" data-food="{{ food }}"></div>
+    {% endif %}
     <div class="app-container">
         <div class="side-menu">
             <h1 class="text-2xl font-bold mb-4">Korean BBQ Restaurant Finder</h1>

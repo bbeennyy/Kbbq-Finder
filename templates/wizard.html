@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Restaurant Finder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="wizard-container">
+        <h1>Welcome to Restaurant Finder</h1>
+        <p>How are you today?</p>
+        <div id="mood-buttons">
+            <button onclick="setMood('great')">Great!</button>
+            <button onclick="setMood('good')">Good</button>
+            <button onclick="setMood('okay')">Okay</button>
+            <button onclick="setMood('not-great')">Not Great</button>
+        </div>
+        <p>What would you like to eat?</p>
+        <div id="food-buttons">
+            <button onclick="setFood('korean-bbq')">Korean BBQ</button>
+            <button onclick="setFood('tacos')">Tacos</button>
+            <button onclick="setFood('wings')">Wings</button>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/wizard.js') }}"></script>
+</body>
+</html>

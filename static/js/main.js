@@ -3,6 +3,17 @@ let markers = [];
 let markerCluster;
 let autocomplete;
 
+function getUserPreferences() {
+    const preferencesElement = document.getElementById('user-preferences');
+    if (preferencesElement) {
+        return {
+            mood: preferencesElement.dataset.mood,
+            food: preferencesElement.dataset.food
+        };
+    }
+    return null;
+}
+
 function initMap() {
     map = new google.maps.Map(document.getElementById("map"), {
         center: { lat: 37.5665, lng: 126.9780 },
@@ -62,6 +73,11 @@ function searchRestaurants() {
     const formData = new FormData();
     formData.append('location', location);
     filters.forEach(filter => formData.append('filters', filter));
+
+    const userPreferences = getUserPreferences();
+    if (userPreferences && userPreferences.food) {
+        formData.append('food_type', userPreferences.food);
+    }
 
     fetch('/search', {
         method: 'POST',
