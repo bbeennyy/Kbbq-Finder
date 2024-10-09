@@ -20,83 +20,29 @@ function initMap() {
         ],
     });
 
-    const input = document.getElementById("autocomplete");
-    autocomplete = new google.maps.places.Autocomplete(input, {
-        types: ['geocode'],
-        fields: ['place_id', 'geometry', 'formatted_address']
-    });
-
-    autocomplete.addListener('place_changed', handlePlaceChanged);
-
-    initDarkMode();
     initCustomAutocomplete();
-}
-
-function handlePlaceChanged() {
-    const place = autocomplete.getPlace();
-    if (!place.geometry) {
-        console.log("No details available for input: '" + place.name + "'");
-        return;
-    }
-    
-    document.getElementById("autocomplete").value = place.formatted_address;
-    map.setCenter(place.geometry.location);
-    map.setZoom(15);
+    initDarkMode();
 }
 
 function initCustomAutocomplete() {
     const input = document.getElementById("autocomplete");
-    const dropdown = document.createElement("div");
-    dropdown.className = "autocomplete-dropdown";
-    dropdown.style.display = "none";
-    input.parentNode.appendChild(dropdown);
-
-    input.addEventListener("input", debounce(function() {
-        const value = this.value;
-        if (value.length > 2) {
-            const service = new google.maps.places.AutocompleteService();
-            service.getPlacePredictions({ input: value, types: ['geocode'] }, function(predictions, status) {
-                if (status === google.maps.places.PlacesServiceStatus.OK) {
-                    displaySuggestions(predictions);
-                }
-            });
-        } else {
-            dropdown.style.display = "none";
-        }
-    }, 300));
-
-    function displaySuggestions(predictions) {
-        dropdown.innerHTML = "";
-        dropdown.style.display = "block";
-        predictions.forEach(prediction => {
-            const div = document.createElement("div");
-            div.textContent = prediction.description;
-            div.addEventListener("click", function() {
-                input.value = prediction.description;
-                dropdown.style.display = "none";
-                const geocoder = new google.maps.Geocoder();
-                geocoder.geocode({ placeId: prediction.place_id }, function(results, status) {
-                    if (status === "OK") {
-                        map.setCenter(results[0].geometry.location);
-                        map.setZoom(15);
-                    }
-                });
-            });
-            dropdown.appendChild(div);
-        });
-    }
-}
-
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
+    const options = {
+        types: ['geocode'],
+        fields: ['place_id', 'geometry', 'formatted_address']
     };
+    autocomplete = new google.maps.places.Autocomplete(input, options);
+
+    autocomplete.addListener('place_changed', function() {
+        const place = autocomplete.getPlace();
+        if (!place.geometry) {
+            console.log("No details available for input: '" + place.name + "'");
+            return;
+        }
+        
+        input.value = place.formatted_address;
+        map.setCenter(place.geometry.location);
+        map.setZoom(15);
+    });
 }
 
 function searchRestaurants() {
