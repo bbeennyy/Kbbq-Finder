@@ -50,15 +50,6 @@
 
     <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script>
-        function loadGoogleMapsAPI() {
-            const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap&libraries=places`;
-            script.defer = true;
-            script.async = true;
-            document.head.appendChild(script);
-        }
-        window.addEventListener('load', loadGoogleMapsAPI);
-    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap&libraries=places"></script>
 </body>
 </html>
