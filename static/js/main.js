@@ -21,7 +21,16 @@ function initMap() {
 
     window.addEventListener('resize', function() {
         google.maps.event.trigger(map, 'resize');
+        if (markers.length > 0) {
+            const bounds = new google.maps.LatLngBounds();
+            markers.forEach(marker => bounds.extend(marker.getPosition()));
+            map.fitBounds(bounds);
+        }
     });
+
+    setTimeout(function() {
+        google.maps.event.trigger(map, 'resize');
+    }, 100);
 }
 
 function searchRestaurants() {
