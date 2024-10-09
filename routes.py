@@ -5,6 +5,9 @@ from flask_login import login_user, logout_user, login_required, current_user
 from app import app, db
 from models import Restaurant, User
 from urllib.parse import quote
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY")
 
@@ -148,3 +151,31 @@ def unfavorite_restaurant(restaurant_id):
 @login_required
 def favorites():
     return render_template('favorites.html', favorites=current_user.favorite_restaurants)
+
+@app.route('/share', methods=['POST'])
+def share():
+    data = request.json
+    recipient_email = data.get('email')
+    content = data.get('content')
+    
+    if not recipient_email or not content:
+        return jsonify({'status': 'error', 'message': 'Email and content are required'}), 400
+
+    subject = "Korean BBQ Restaurant Recommendations"
+    sender_email = "your-email@example.com"  # Replace with your email
+    
+    message = MIMEMultipart()
+    message["From"] = sender_email
+    message["To"] = recipient_email
+    message["Subject"] = subject
+    
+    message.attach(MIMEText(content, "plain"))
+    
+    try:
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(sender_email, "your-email-password")  # Replace with your email password
+            server.send_message(message)
+        return jsonify({'status': 'success', 'message': 'Email sent successfully'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
