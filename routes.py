@@ -41,6 +41,13 @@ def wizard_complete():
     session['wizard_complete'] = True
     return redirect(url_for('index'))
 
+@app.route('/reset_wizard')
+def reset_wizard():
+    session.pop('wizard_complete', None)
+    session.pop('mood', None)
+    session.pop('food', None)
+    return redirect(url_for('wizard_step1'))
+
 @app.route('/search', methods=['POST'])
 @cache.memoize(timeout=300)
 def search():
