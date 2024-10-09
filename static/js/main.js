@@ -18,6 +18,10 @@ function initMap() {
             },
         ],
     });
+
+    window.addEventListener('resize', function() {
+        google.maps.event.trigger(map, 'resize');
+    });
 }
 
 function searchRestaurants() {
@@ -55,12 +59,9 @@ function displayRestaurants(restaurants) {
     });
 
     if (restaurants.length > 0) {
-        const bounds = new google.maps.LatLngBounds();
-        markers.forEach(marker => bounds.extend(marker.getPosition()));
-        map.fitBounds(bounds);
+        recenterMap();
     }
 
-    // Initialize marker clustering
     if (markerCluster) {
         markerCluster.clearMarkers();
     }
@@ -175,5 +176,12 @@ function sendInvitation(restaurantId, recipientUsername, message) {
     .catch(error => console.error('Error:', error));
 }
 
-// Ensure the map is initialized when the page loads
+function recenterMap() {
+    if (markers.length > 0) {
+        const bounds = new google.maps.LatLngBounds();
+        markers.forEach(marker => bounds.extend(marker.getPosition()));
+        map.fitBounds(bounds);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', initMap);

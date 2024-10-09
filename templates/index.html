@@ -36,10 +36,21 @@
 
             <div id="results" class="results-container"></div>
         </div>
-        <div id="map" class="map-container"></div>
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
     </div>
     <script src='https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js'></script>
-    <script src='https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap&libraries=places' async defer></script>
     <script src='{{ url_for('static', filename='js/main.js') }}'></script>
+    <script>
+        function loadGoogleMapsScript() {
+            var script = document.createElement('script');
+            script.src = 'https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap&libraries=places';
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+        window.addEventListener('load', loadGoogleMapsScript);
+    </script>
 </body>
 </html>
