@@ -41,11 +41,18 @@ function initCustomAutocomplete() {
 }
 
 function searchRestaurants() {
-    const location = document.getElementById("autocomplete").value;
+    const location = document.getElementById("autocomplete").value.trim();
     const filters = Array.from(document.querySelectorAll('input[name="filters"]:checked')).map(el => el.value);
-    
-    document.getElementById("loading").classList.remove("hidden");
-    document.getElementById("results").innerHTML = "";
+    const resultsContainer = document.getElementById("results");
+    const loadingIndicator = document.getElementById("loading");
+
+    if (!location) {
+        showError("Please enter a location to search.");
+        return;
+    }
+
+    loadingIndicator.classList.remove("hidden");
+    resultsContainer.innerHTML = "";
 
     const formData = new FormData();
     formData.append('location', location);
@@ -55,17 +62,28 @@ function searchRestaurants() {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(displayRestaurants)
     .catch(error => {
         console.error('Error:', error);
-        document.getElementById("loading").classList.add("hidden");
-        alert("An error occurred while searching for restaurants. Please try again.");
+        showError("An error occurred while searching for restaurants. Please try again.");
+    })
+    .finally(() => {
+        loadingIndicator.classList.add("hidden");
     });
 }
 
+function showError(message) {
+    const resultsContainer = document.getElementById("results");
+    resultsContainer.innerHTML = `<div class="error-message bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">${message}</div>`;
+}
+
 function displayRestaurants(restaurants) {
-    document.getElementById("loading").classList.add("hidden");
     const resultsContainer = document.getElementById("results");
     resultsContainer.innerHTML = "";
 
