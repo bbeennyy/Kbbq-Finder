@@ -17,7 +17,6 @@ def search():
     location = request.form.get('location')
     filters = request.form.getlist('filters')
     
-    # Geocode the location
     geocode_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={quote(location)}&key={GOOGLE_MAPS_API_KEY}"
     geocode_response = requests.get(geocode_url).json()
     
@@ -27,7 +26,6 @@ def search():
     lat = geocode_response['results'][0]['geometry']['location']['lat']
     lng = geocode_response['results'][0]['geometry']['location']['lng']
     
-    # Search for Korean BBQ restaurants
     search_url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={lat},{lng}&radius=5000&type=restaurant&keyword=korean%20bbq&key={GOOGLE_MAPS_API_KEY}"
     search_response = requests.get(search_url).json()
     
@@ -38,7 +36,6 @@ def search():
     for result in search_response['results']:
         place_id = result['place_id']
         
-        # Get place details to check for filters and fetch photos
         details_url = f"https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&fields=name,vicinity,rating,geometry,price_level,review,photos&key={GOOGLE_MAPS_API_KEY}"
         details_response = requests.get(details_url).json()
         
@@ -47,11 +44,9 @@ def search():
         
         details = details_response['result']
         
-        # Check if the restaurant matches the filters
         if not all(check_filter(details, filter) for filter in filters):
             continue
         
-        # Get the first photo reference if available
         photo_reference = None
         if 'photos' in details and len(details['photos']) > 0:
             photo_reference = details['photos'][0]['photo_reference']
@@ -73,7 +68,6 @@ def search():
             db.session.commit()
             restaurant_data = new_restaurant.to_dict()
         
-        # Add photo URL to the restaurant data
         if photo_reference:
             restaurant_data['photo_url'] = f"https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference={photo_reference}&key={GOOGLE_MAPS_API_KEY}"
         else:
