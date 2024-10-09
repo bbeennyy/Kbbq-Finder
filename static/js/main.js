@@ -157,18 +157,26 @@ function toggleFavorite(restaurantId) {
 }
 
 function showInviteForm(restaurantId) {
-    const recipientUsername = prompt("Enter the username of the friend you want to invite:");
-    if (recipientUsername) {
-        const message = prompt("Enter a message for your invitation (optional):");
-        sendInvitation(restaurantId, recipientUsername, message);
-    }
+    const modal = document.getElementById('inviteModal');
+    const restaurantIdInput = document.getElementById('restaurantId');
+    restaurantIdInput.value = restaurantId;
+    modal.classList.remove('hidden');
 }
 
-function sendInvitation(restaurantId, recipientUsername, message) {
+function closeInviteForm() {
+    const modal = document.getElementById('inviteModal');
+    modal.classList.add('hidden');
+}
+
+function sendInvitation() {
+    const restaurantId = document.getElementById('restaurantId').value;
+    const recipientUsername = document.getElementById('recipientUsername').value;
+    const message = document.getElementById('invitationMessage').value;
+
     const formData = new FormData();
     formData.append('restaurant_id', restaurantId);
     formData.append('recipient_username', recipientUsername);
-    formData.append('message', message || '');
+    formData.append('message', message);
 
     fetch('/send_invitation', {
         method: 'POST',
@@ -178,6 +186,7 @@ function sendInvitation(restaurantId, recipientUsername, message) {
     .then(data => {
         if (data.status === 'success') {
             alert('Invitation sent successfully!');
+            closeInviteForm();
         } else {
             alert('Error: ' + data.message);
         }
