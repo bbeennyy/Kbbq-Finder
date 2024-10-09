@@ -74,6 +74,7 @@ function createRestaurantCard(restaurant) {
     card.className = "restaurant-card";
     card.innerHTML = `
         <h2 class="text-xl font-bold mb-2">${restaurant.name}</h2>
+        ${restaurant.photo_url ? `<img src="${restaurant.photo_url}" alt="${restaurant.name}" class="w-full h-40 object-cover mb-2">` : ''}
         <p class="text-gray-600 mb-2">${restaurant.address}</p>
         <p class="text-yellow-500 mb-2">Rating: ${restaurant.rating || 'N/A'}</p>
         <button onclick="showOnMap(${restaurant.latitude}, ${restaurant.longitude})" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2">Show on Map</button>
@@ -90,7 +91,7 @@ function addMarker(restaurant) {
         map: map,
         title: restaurant.name,
         icon: {
-            url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+            url: restaurant.photo_url || 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
             scaledSize: new google.maps.Size(32, 32),
         }
     });
@@ -99,6 +100,7 @@ function addMarker(restaurant) {
         content: `
             <div class="info-window">
                 <h3 class="font-bold">${restaurant.name}</h3>
+                ${restaurant.photo_url ? `<img src="${restaurant.photo_url}" alt="${restaurant.name}" class="w-full h-40 object-cover mb-2">` : ''}
                 <p>${restaurant.address}</p>
                 <p>Rating: ${restaurant.rating || 'N/A'}</p>
                 <button onclick="toggleFavorite(${restaurant.id})" class="favorite-btn">

@@ -38,8 +38,8 @@ def search():
     for result in search_response['results']:
         place_id = result['place_id']
         
-        # Get place details to check for filters
-        details_url = f"https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&fields=name,vicinity,rating,geometry,price_level,review&key={GOOGLE_MAPS_API_KEY}"
+        # Get place details to check for filters and fetch photos
+        details_url = f"https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&fields=name,vicinity,rating,geometry,price_level,review,photos&key={GOOGLE_MAPS_API_KEY}"
         details_response = requests.get(details_url).json()
         
         if details_response['status'] != 'OK':
@@ -51,10 +51,15 @@ def search():
         if not all(check_filter(details, filter) for filter in filters):
             continue
         
+        # Get the first photo reference if available
+        photo_reference = None
+        if 'photos' in details and len(details['photos']) > 0:
+            photo_reference = details['photos'][0]['photo_reference']
+        
         existing_restaurant = Restaurant.query.filter_by(place_id=place_id).first()
         
         if existing_restaurant:
-            restaurants.append(existing_restaurant.to_dict())
+            restaurant_data = existing_restaurant.to_dict()
         else:
             new_restaurant = Restaurant(
                 name=details['name'],
@@ -66,7 +71,15 @@ def search():
             )
             db.session.add(new_restaurant)
             db.session.commit()
-            restaurants.append(new_restaurant.to_dict())
+            restaurant_data = new_restaurant.to_dict()
+        
+        # Add photo URL to the restaurant data
+        if photo_reference:
+            restaurant_data['photo_url'] = f"https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference={photo_reference}&key={GOOGLE_MAPS_API_KEY}"
+        else:
+            restaurant_data['photo_url'] = None
+        
+        restaurants.append(restaurant_data)
     
     return jsonify(restaurants)
 
