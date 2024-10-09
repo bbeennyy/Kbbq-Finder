@@ -1,7 +1,6 @@
 let map;
 let markers = [];
 let markerCluster;
-let autocomplete;
 
 function initMap() {
     map = new google.maps.Map(document.getElementById("map"), {
@@ -19,41 +18,12 @@ function initMap() {
             },
         ],
     });
-
-    initCustomAutocomplete();
-    initDarkMode();
-}
-
-function initCustomAutocomplete() {
-    const input = document.getElementById("autocomplete");
-    autocomplete = new google.maps.places.Autocomplete(input, {
-        types: ['geocode'],
-        fields: ['place_id', 'geometry', 'formatted_address']
-    });
-
-    autocomplete.addListener('place_changed', function() {
-        const place = autocomplete.getPlace();
-        if (place.geometry) {
-            map.setCenter(place.geometry.location);
-            map.setZoom(15);
-        }
-    });
 }
 
 function searchRestaurants() {
-    const location = document.getElementById("autocomplete").value.trim();
+    const location = document.getElementById("location").value;
     const filters = Array.from(document.querySelectorAll('input[name="filters"]:checked')).map(el => el.value);
-    const resultsContainer = document.getElementById("results");
-    const loadingIndicator = document.getElementById("loading");
-
-    if (!location) {
-        showError("Please enter a location to search.");
-        return;
-    }
-
-    loadingIndicator.classList.remove("hidden");
-    resultsContainer.innerHTML = "";
-
+    
     const formData = new FormData();
     formData.append('location', location);
     filters.forEach(filter => formData.append('filters', filter));
@@ -62,25 +32,13 @@ function searchRestaurants() {
         method: 'POST',
         body: formData
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
+    .then(response => response.json())
+    .then(data => {
+        displayRestaurants(data);
     })
-    .then(displayRestaurants)
     .catch(error => {
         console.error('Error:', error);
-        showError("An error occurred while searching for restaurants. Please try again.");
-    })
-    .finally(() => {
-        loadingIndicator.classList.add("hidden");
     });
-}
-
-function showError(message) {
-    const resultsContainer = document.getElementById("results");
-    resultsContainer.innerHTML = `<div class="error-message bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">${message}</div>`;
 }
 
 function displayRestaurants(restaurants) {
@@ -90,7 +48,9 @@ function displayRestaurants(restaurants) {
     clearMarkers();
 
     restaurants.forEach(restaurant => {
-        resultsContainer.appendChild(createRestaurantCard(restaurant));
+        const card = createRestaurantCard(restaurant);
+        resultsContainer.appendChild(card);
+
         addMarker(restaurant);
     });
 
@@ -100,18 +60,13 @@ function displayRestaurants(restaurants) {
         map.fitBounds(bounds);
     }
 
+    // Initialize marker clustering
     if (markerCluster) {
         markerCluster.clearMarkers();
     }
     markerCluster = new MarkerClusterer(map, markers, {
         imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
     });
-
-    const shareButton = document.createElement("button");
-    shareButton.textContent = "Share Results";
-    shareButton.className = "bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 mt-4";
-    shareButton.onclick = () => shareResults(restaurants);
-    resultsContainer.appendChild(shareButton);
 }
 
 function createRestaurantCard(restaurant) {
@@ -122,11 +77,8 @@ function createRestaurantCard(restaurant) {
         <p class="text-gray-600 mb-2">${restaurant.address}</p>
         <p class="text-yellow-500 mb-2">Rating: ${restaurant.rating || 'N/A'}</p>
         <button onclick="showOnMap(${restaurant.latitude}, ${restaurant.longitude})" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2">Show on Map</button>
-        <button onclick="toggleFavorite(${restaurant.id})" id="favorite-btn-${restaurant.id}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mr-2">
+        <button onclick="toggleFavorite(${restaurant.id})" id="favorite-btn-${restaurant.id}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
             Add to Favorites
-        </button>
-        <button onclick="shareRestaurant(${restaurant.id})" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
-            Share
         </button>
     `;
     return card;
@@ -151,9 +103,6 @@ function addMarker(restaurant) {
                 <p>Rating: ${restaurant.rating || 'N/A'}</p>
                 <button onclick="toggleFavorite(${restaurant.id})" class="favorite-btn">
                     Add to Favorites
-                </button>
-                <button onclick="shareRestaurant(${restaurant.id})" class="share-btn">
-                    Share
                 </button>
             </div>
         `
@@ -195,55 +144,5 @@ function toggleFavorite(restaurantId) {
         .catch(error => console.error('Error:', error));
 }
 
-function shareRestaurant(restaurantId) {
-    const restaurant = document.querySelector(`#favorite-btn-${restaurantId}`).closest('.restaurant-card');
-    const restaurantInfo = restaurant.innerText.split('\n').slice(0, 3).join('\n');
-    shareContent(restaurantInfo);
-}
-
-function shareResults(restaurants) {
-    const content = restaurants.map(r => `${r.name}\n${r.address}\nRating: ${r.rating || 'N/A'}`).join('\n\n');
-    shareContent(content);
-}
-
-function shareContent(content) {
-    const email = prompt("Enter the email address to share with:");
-    if (email) {
-        fetch('/share', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, content }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                alert('Shared successfully!');
-            } else {
-                alert('Failed to share: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while sharing.');
-        });
-    }
-}
-
-function initDarkMode() {
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    const body = document.body;
-    const isDarkMode = localStorage.getItem('darkMode') === 'enabled';
-
-    if (isDarkMode) {
-        body.classList.add('dark-mode');
-    }
-
-    darkModeToggle.addEventListener('click', () => {
-        body.classList.toggle('dark-mode');
-        localStorage.setItem('darkMode', body.classList.contains('dark-mode') ? 'enabled' : 'disabled');
-    });
-}
-
-window.initMap = initMap;
+// Ensure the map is initialized when the page loads
+document.addEventListener('DOMContentLoaded', initMap);

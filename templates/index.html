@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Korean BBQ Restaurant Finder</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
@@ -24,7 +23,7 @@
             </div>
             
             <div class="search-container mb-4">
-                <input type="text" id="autocomplete" placeholder="Enter zip code or address" class="w-full p-2 border rounded mb-2">
+                <input type="text" id="location" placeholder="Enter zip code or address" class="w-full p-2 border rounded mb-2">
                 <div class="filters mb-2">
                     <label class="block"><input type="checkbox" name="filters" value="high_rating"> High Rating (4.5+)</label>
                     <label class="block"><input type="checkbox" name="filters" value="affordable"> Affordable</label>
@@ -34,22 +33,13 @@
                 <button onclick="searchRestaurants()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Search</button>
             </div>
 
-            <div id="loading" class="loading-indicator hidden">
-                <div class="spinner"></div>
-                <p>Searching for restaurants...</p>
-            </div>
-
             <div id="results" class="results-container"></div>
         </div>
         <div id="map" class="map-container"></div>
     </div>
 
-    <button id="darkModeToggle" class="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-full hover:bg-gray-700">
-        Toggle Dark Mode
-    </button>
-
     <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap&libraries=places" async defer></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap&libraries=places"></script>
 </body>
 </html>
