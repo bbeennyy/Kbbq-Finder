@@ -85,7 +85,7 @@ def search():
 
 def check_filter(details, filter):
     if filter == 'high_rating':
-        return details.get('rating', 0) >= 4.5
+        return details.get('rating', 0) >= 4.0  # Changed from 4.5 to 4.0
     elif filter == 'affordable':
         return details.get('price_level', 2) <= 2
     elif filter == 'outdoor_seating':

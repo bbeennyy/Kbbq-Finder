@@ -64,9 +64,7 @@ function displayRestaurants(restaurants) {
     if (markerCluster) {
         markerCluster.clearMarkers();
     }
-    markerCluster = new MarkerClusterer(map, markers, {
-        imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
-    });
+    markerCluster = new markerClusterer.MarkerClusterer({ map, markers });
 }
 
 function createRestaurantCard(restaurant) {
