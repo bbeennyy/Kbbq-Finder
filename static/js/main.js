@@ -160,23 +160,23 @@ function showInviteForm(restaurantId) {
     const modal = document.getElementById('inviteModal');
     const restaurantIdInput = document.getElementById('restaurantId');
     restaurantIdInput.value = restaurantId;
-    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
     
     // Add event listener to close button
     const closeBtn = document.getElementById('closeModalBtn');
-    closeBtn.addEventListener('click', closeInviteForm);
+    closeBtn.onclick = closeInviteForm;
     
     // Add event listener to close modal when clicking outside
-    window.addEventListener('click', function(event) {
+    window.onclick = function(event) {
         if (event.target === modal) {
             closeInviteForm();
         }
-    });
+    };
 }
 
 function closeInviteForm() {
     const modal = document.getElementById('inviteModal');
-    modal.classList.add('hidden');
+    modal.style.display = 'none';
     clearInviteForm();
     clearInviteError();
 }
