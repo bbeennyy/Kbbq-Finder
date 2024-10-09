@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invitations - Korean BBQ Restaurant Finder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container mx-auto mt-8">
+        <h1 class="text-2xl font-bold mb-4">Invitations</h1>
+        
+        <h2 class="text-xl font-bold mb-2">Received Invitations</h2>
+        {% if received_invitations %}
+            <ul class="mb-8">
+            {% for invitation in received_invitations %}
+                <li class="mb-4 p-4 bg-white shadow rounded">
+                    <p><strong>From:</strong> {{ invitation.sender.username }}</p>
+                    <p><strong>Restaurant:</strong> {{ invitation.restaurant.name }}</p>
+                    <p><strong>Message:</strong> {{ invitation.message }}</p>
+                    <div class="mt-2">
+                        <button onclick="respondInvitation({{ invitation.id }}, 'accept')" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Accept</button>
+                        <button onclick="respondInvitation({{ invitation.id }}, 'decline')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 ml-2">Decline</button>
+                    </div>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p class="mb-8">No pending invitations.</p>
+        {% endif %}
+
+        <h2 class="text-xl font-bold mb-2">Sent Invitations</h2>
+        {% if sent_invitations %}
+            <ul>
+            {% for invitation in sent_invitations %}
+                <li class="mb-4 p-4 bg-white shadow rounded">
+                    <p><strong>To:</strong> {{ invitation.recipient.username }}</p>
+                    <p><strong>Restaurant:</strong> {{ invitation.restaurant.name }}</p>
+                    <p><strong>Message:</strong> {{ invitation.message }}</p>
+                    <p><strong>Status:</strong> {{ invitation.status.capitalize() }}</p>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No sent invitations.</p>
+        {% endif %}
+
+        <a href="{{ url_for('index') }}" class="mt-8 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Back to Search</a>
+    </div>
+
+    <script>
+        function respondInvitation(invitationId, response) {
+            fetch(`/respond_invitation/${invitationId}/${response}`, {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

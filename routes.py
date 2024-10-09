@@ -3,7 +3,7 @@ import requests
 from flask import render_template, request, jsonify, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from app import app, db
-from models import Restaurant, User
+from models import Restaurant, User, Invitation
 from urllib.parse import quote
 
 GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY")
@@ -85,7 +85,7 @@ def search():
 
 def check_filter(details, filter):
     if filter == 'high_rating':
-        return details.get('rating', 0) >= 4.0  # Changed from 4.5 to 4.0
+        return details.get('rating', 0) >= 4.0
     elif filter == 'affordable':
         return details.get('price_level', 2) <= 2
     elif filter == 'outdoor_seating':
@@ -161,3 +161,46 @@ def unfavorite_restaurant(restaurant_id):
 @login_required
 def favorites():
     return render_template('favorites.html', favorites=current_user.favorite_restaurants)
+
+@app.route('/send_invitation', methods=['POST'])
+@login_required
+def send_invitation():
+    recipient_username = request.form.get('recipient_username')
+    restaurant_id = request.form.get('restaurant_id')
+    message = request.form.get('message')
+
+    recipient = User.query.filter_by(username=recipient_username).first()
+    if not recipient:
+        return jsonify({'status': 'error', 'message': 'Recipient not found'}), 404
+
+    restaurant = Restaurant.query.get(restaurant_id)
+    if not restaurant:
+        return jsonify({'status': 'error', 'message': 'Restaurant not found'}), 404
+
+    invitation = Invitation(sender_id=current_user.id, recipient_id=recipient.id, restaurant_id=restaurant_id, message=message)
+    db.session.add(invitation)
+    db.session.commit()
+
+    return jsonify({'status': 'success', 'message': 'Invitation sent successfully'})
+
+@app.route('/invitations')
+@login_required
+def view_invitations():
+    received_invitations = current_user.received_invitations.filter_by(status='pending').all()
+    sent_invitations = current_user.sent_invitations.all()
+    return render_template('invitations.html', received_invitations=received_invitations, sent_invitations=sent_invitations)
+
+@app.route('/respond_invitation/<int:invitation_id>/<string:response>', methods=['POST'])
+@login_required
+def respond_invitation(invitation_id, response):
+    invitation = Invitation.query.get_or_404(invitation_id)
+    if invitation.recipient_id != current_user.id:
+        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
+
+    if response not in ['accept', 'decline']:
+        return jsonify({'status': 'error', 'message': 'Invalid response'}), 400
+
+    invitation.status = 'accepted' if response == 'accept' else 'declined'
+    db.session.commit()
+
+    return jsonify({'status': 'success', 'message': f'Invitation {invitation.status}'})

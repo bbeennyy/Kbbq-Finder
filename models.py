@@ -8,6 +8,8 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(255))
     favorite_restaurants = db.relationship('Restaurant', secondary='user_favorites', back_populates='favorited_by')
+    sent_invitations = db.relationship('Invitation', foreign_keys='Invitation.sender_id', backref='sender', lazy='dynamic')
+    received_invitations = db.relationship('Invitation', foreign_keys='Invitation.recipient_id', backref='recipient', lazy='dynamic')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -40,3 +42,14 @@ user_favorites = db.Table('user_favorites',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
     db.Column('restaurant_id', db.Integer, db.ForeignKey('restaurant.id'), primary_key=True)
 )
+
+class Invitation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), nullable=False)
+    message = db.Column(db.String(200))
+    status = db.Column(db.String(20), default='pending')  # pending, accepted, declined
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+    restaurant = db.relationship('Restaurant', backref='invitations')

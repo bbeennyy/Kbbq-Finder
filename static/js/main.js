@@ -76,8 +76,11 @@ function createRestaurantCard(restaurant) {
         <p class="text-gray-600 mb-2">${restaurant.address}</p>
         <p class="text-yellow-500 mb-2">Rating: ${restaurant.rating || 'N/A'}</p>
         <button onclick="showOnMap(${restaurant.latitude}, ${restaurant.longitude})" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2">Show on Map</button>
-        <button onclick="toggleFavorite(${restaurant.id})" id="favorite-btn-${restaurant.id}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+        <button onclick="toggleFavorite(${restaurant.id})" id="favorite-btn-${restaurant.id}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mr-2">
             Add to Favorites
+        </button>
+        <button onclick="showInviteForm(${restaurant.id})" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+            Invite Friend
         </button>
     `;
     return card;
@@ -99,6 +102,9 @@ function addMarker(restaurant) {
                 <p>Rating: ${restaurant.rating || 'N/A'}</p>
                 <button onclick="toggleFavorite(${restaurant.id})" class="favorite-btn">
                     Add to Favorites
+                </button>
+                <button onclick="showInviteForm(${restaurant.id})" class="invite-btn">
+                    Invite Friend
                 </button>
             </div>
         `
@@ -138,6 +144,35 @@ function toggleFavorite(restaurantId) {
             }
         })
         .catch(error => console.error('Error:', error));
+}
+
+function showInviteForm(restaurantId) {
+    const recipientUsername = prompt("Enter the username of the friend you want to invite:");
+    if (recipientUsername) {
+        const message = prompt("Enter a message for your invitation (optional):");
+        sendInvitation(restaurantId, recipientUsername, message);
+    }
+}
+
+function sendInvitation(restaurantId, recipientUsername, message) {
+    const formData = new FormData();
+    formData.append('restaurant_id', restaurantId);
+    formData.append('recipient_username', recipientUsername);
+    formData.append('message', message || '');
+
+    fetch('/send_invitation', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Invitation sent successfully!');
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => console.error('Error:', error));
 }
 
 // Ensure the map is initialized when the page loads
