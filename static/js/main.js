@@ -150,7 +150,7 @@ function toggleFavorite(restaurantId) {
                 favoriteBtn.classList.toggle('bg-green-500');
                 favoriteBtn.classList.toggle('bg-red-500');
             } else {
-                showPopup('Error', data.message);
+                showAcceptancePopup('Error', data.message);
             }
         })
         .catch(error => console.error('Error:', error));
@@ -223,7 +223,7 @@ function sendInvitation() {
     .then(data => {
         if (data.status === 'success') {
             closeInviteForm();
-            showPopup('Success', 'Invitation sent successfully');
+            showAcceptancePopup('Success', 'Invitation sent successfully');
         } else {
             displayInviteError(data.message);
         }
@@ -242,19 +242,19 @@ function recenterMap() {
     }
 }
 
-function showPopup(title, message) {
+function showAcceptancePopup(title, message) {
     const popup = document.getElementById('acceptancePopup');
     const popupTitle = popup.querySelector('h3');
     const popupMessage = document.getElementById('acceptanceMessage');
     
     popupTitle.textContent = title;
     popupMessage.textContent = message;
-    popup.classList.remove('hidden');
+    popup.style.display = 'flex';
 }
 
 function closeAcceptancePopup() {
     const popup = document.getElementById('acceptancePopup');
-    popup.classList.add('hidden');
+    popup.style.display = 'none';
 }
 
 function respondInvitation(invitationId, response) {
@@ -264,12 +264,12 @@ function respondInvitation(invitationId, response) {
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            showPopup('Invitation Response', data.message);
+            showAcceptancePopup('Invitation Response', data.message);
             setTimeout(() => {
                 location.reload();
             }, 2000);
         } else {
-            showPopup('Error', 'Error: ' + data.message);
+            showAcceptancePopup('Error', 'Error: ' + data.message);
         }
     })
     .catch(error => console.error('Error:', error));
@@ -277,6 +277,10 @@ function respondInvitation(invitationId, response) {
 
 document.addEventListener('DOMContentLoaded', function() {
     initMap();
+    
+    // Hide pop-ups on initial load
+    document.getElementById('inviteModal').style.display = 'none';
+    document.getElementById('acceptancePopup').style.display = 'none';
     
     document.body.addEventListener('click', function(event) {
         if (event.target.classList.contains('invite-friend-btn')) {
