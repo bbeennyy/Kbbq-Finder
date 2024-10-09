@@ -38,7 +38,8 @@
         <div id="map" class="map-container"></div>
     </div>
 
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap" async defer></script>
+    <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap&libraries=places" async defer></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

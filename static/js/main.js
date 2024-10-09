@@ -1,10 +1,22 @@
 let map;
 let markers = [];
+let markerCluster;
 
 function initMap() {
     map = new google.maps.Map(document.getElementById("map"), {
         center: { lat: 37.5665, lng: 126.9780 },
         zoom: 10,
+        styles: [
+            {
+                featureType: "poi.business",
+                stylers: [{ visibility: "off" }],
+            },
+            {
+                featureType: "transit",
+                elementType: "labels.icon",
+                stylers: [{ visibility: "off" }],
+            },
+        ],
     });
 }
 
@@ -47,6 +59,11 @@ function displayRestaurants(restaurants) {
         markers.forEach(marker => bounds.extend(marker.getPosition()));
         map.fitBounds(bounds);
     }
+
+    // Initialize marker clustering
+    markerCluster = new MarkerClusterer(map, markers, {
+        imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
+    });
 }
 
 function createRestaurantCard(restaurant) {
@@ -68,11 +85,24 @@ function addMarker(restaurant) {
     const marker = new google.maps.Marker({
         position: { lat: restaurant.latitude, lng: restaurant.longitude },
         map: map,
-        title: restaurant.name
+        title: restaurant.name,
+        icon: {
+            url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+            scaledSize: new google.maps.Size(32, 32),
+        }
     });
 
     const infoWindow = new google.maps.InfoWindow({
-        content: `<h3>${restaurant.name}</h3><p>${restaurant.address}</p>`
+        content: `
+            <div class="info-window">
+                <h3 class="font-bold">${restaurant.name}</h3>
+                <p>${restaurant.address}</p>
+                <p>Rating: ${restaurant.rating || 'N/A'}</p>
+                <button onclick="toggleFavorite(${restaurant.id})" class="favorite-btn">
+                    Add to Favorites
+                </button>
+            </div>
+        `
     });
 
     marker.addListener("click", () => {
@@ -83,6 +113,9 @@ function addMarker(restaurant) {
 }
 
 function clearMarkers() {
+    if (markerCluster) {
+        markerCluster.clearMarkers();
+    }
     markers.forEach(marker => marker.setMap(null));
     markers = [];
 }
