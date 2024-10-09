@@ -46,7 +46,14 @@ function initCustomAutocomplete() {
 }
 
 function searchRestaurants() {
-    const location = document.getElementById("autocomplete").value;
+    const input = document.getElementById("autocomplete");
+    const place = autocomplete.getPlace();
+    let location = input.value;
+
+    if (place && place.geometry) {
+        location = place.formatted_address;
+    }
+
     const filters = Array.from(document.querySelectorAll('input[name="filters"]:checked')).map(el => el.value);
     
     document.getElementById("loading").classList.remove("hidden");
