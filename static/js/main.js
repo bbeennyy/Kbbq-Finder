@@ -150,7 +150,7 @@ function toggleFavorite(restaurantId) {
                 favoriteBtn.classList.toggle('bg-green-500');
                 favoriteBtn.classList.toggle('bg-red-500');
             } else {
-                alert(data.message);
+                showPopup('Error', data.message);
             }
         })
         .catch(error => console.error('Error:', error));
@@ -201,6 +201,7 @@ function sendInvitation() {
     .then(data => {
         if (data.status === 'success') {
             closeInviteForm();
+            showPopup('Success', 'Invitation sent successfully');
         } else {
             displayInviteError(data.message);
         }
@@ -223,6 +224,40 @@ function recenterMap() {
         markers.forEach(marker => bounds.extend(marker.getPosition()));
         map.fitBounds(bounds);
     }
+}
+
+function showPopup(title, message) {
+    const popup = document.getElementById('acceptancePopup');
+    const popupTitle = popup.querySelector('h3');
+    const popupMessage = document.getElementById('acceptanceMessage');
+    
+    popupTitle.textContent = title;
+    popupMessage.textContent = message;
+    popup.classList.remove('hidden');
+}
+
+function closeAcceptancePopup() {
+    const popup = document.getElementById('acceptancePopup');
+    popup.classList.add('hidden');
+}
+
+// Update the respondInvitation function to use the new showPopup function
+function respondInvitation(invitationId, response) {
+    fetch(`/respond_invitation/${invitationId}/${response}`, {
+        method: 'POST',
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showPopup('Invitation Response', data.message);
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            showPopup('Error', 'Error: ' + data.message);
+        }
+    })
+    .catch(error => console.error('Error:', error));
 }
 
 document.addEventListener('DOMContentLoaded', initMap);
