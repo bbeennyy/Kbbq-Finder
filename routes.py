@@ -1,6 +1,6 @@
 import os
 import requests
-from flask import render_template, request, jsonify, redirect, url_for, flash
+from flask import render_template, request, jsonify, redirect, url_for, flash, session
 from flask_login import login_user, logout_user, login_required, current_user
 from app import app, db
 from models import Restaurant, User
@@ -13,17 +13,32 @@ GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY")
 
 @app.route('/')
 def index():
-    mood = request.args.get('mood')
-    food = request.args.get('food')
-    if mood and food:
-        return render_template('index.html', api_key=GOOGLE_MAPS_API_KEY, mood=mood, food=food)
-    return render_template('wizard.html')
+    if 'wizard_complete' not in session or not session['wizard_complete']:
+        return redirect(url_for('wizard_step1'))
+    return render_template('index.html', api_key=GOOGLE_MAPS_API_KEY)
+
+@app.route('/wizard/step1')
+def wizard_step1():
+    return render_template('wizard.html', step=1)
+
+@app.route('/wizard/step2', methods=['POST'])
+def wizard_step2():
+    mood = request.form.get('mood')
+    session['mood'] = mood
+    return render_template('wizard.html', step=2)
+
+@app.route('/wizard/complete', methods=['POST'])
+def wizard_complete():
+    food = request.form.get('food')
+    session['food'] = food
+    session['wizard_complete'] = True
+    return redirect(url_for('index'))
 
 @app.route('/search', methods=['POST'])
 def search():
     location = request.form.get('location')
     filters = request.form.getlist('filters')
-    food_type = request.form.get('food_type', 'korean bbq')
+    food_type = session.get('food', 'korean bbq')
     
     # Geocode the location
     geocode_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={quote(location)}&key={GOOGLE_MAPS_API_KEY}"

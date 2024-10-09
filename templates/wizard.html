@@ -9,20 +9,26 @@
 <body>
     <div class="wizard-container">
         <h1>Welcome to Restaurant Finder</h1>
-        <p>How are you today?</p>
-        <div id="mood-buttons">
-            <button onclick="setMood('great')">Great!</button>
-            <button onclick="setMood('good')">Good</button>
-            <button onclick="setMood('okay')">Okay</button>
-            <button onclick="setMood('not-great')">Not Great</button>
-        </div>
-        <p>What would you like to eat?</p>
-        <div id="food-buttons">
-            <button onclick="setFood('korean-bbq')">Korean BBQ</button>
-            <button onclick="setFood('tacos')">Tacos</button>
-            <button onclick="setFood('wings')">Wings</button>
-        </div>
+        {% if step == 1 %}
+            <form action="{{ url_for('wizard_step2') }}" method="post">
+                <p>How are you today?</p>
+                <div id="mood-buttons">
+                    <button type="submit" name="mood" value="great">Great!</button>
+                    <button type="submit" name="mood" value="good">Good</button>
+                    <button type="submit" name="mood" value="okay">Okay</button>
+                    <button type="submit" name="mood" value="not-great">Not Great</button>
+                </div>
+            </form>
+        {% elif step == 2 %}
+            <form action="{{ url_for('wizard_complete') }}" method="post">
+                <p>What would you like to eat?</p>
+                <div id="food-buttons">
+                    <button type="submit" name="food" value="korean bbq">Korean BBQ</button>
+                    <button type="submit" name="food" value="tacos">Tacos</button>
+                    <button type="submit" name="food" value="wings">Wings</button>
+                </div>
+            </form>
+        {% endif %}
     </div>
-    <script src="{{ url_for('static', filename='js/wizard.js') }}"></script>
 </body>
 </html>
