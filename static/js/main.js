@@ -1,6 +1,7 @@
 let map;
 let markers = [];
 let markerCluster;
+let autocomplete;
 
 function initMap() {
     map = new google.maps.Map(document.getElementById("map"), {
@@ -20,32 +21,88 @@ function initMap() {
     });
 
     const input = document.getElementById("autocomplete");
-    const autocomplete = new google.maps.places.Autocomplete(input, {
+    autocomplete = new google.maps.places.Autocomplete(input, {
         types: ['geocode'],
         fields: ['place_id', 'geometry', 'formatted_address']
     });
 
-    autocomplete.addListener('place_changed', function() {
-        const place = autocomplete.getPlace();
-        if (!place.geometry) {
-            console.log("No details available for input: '" + place.name + "'");
-            return;
-        }
-        
-        document.getElementById("autocomplete").value = place.formatted_address;
-        map.setCenter(place.geometry.location);
-        map.setZoom(15);
-    });
+    autocomplete.addListener('place_changed', handlePlaceChanged);
 
-    // Initialize dark mode
     initDarkMode();
+    initCustomAutocomplete();
+}
+
+function handlePlaceChanged() {
+    const place = autocomplete.getPlace();
+    if (!place.geometry) {
+        console.log("No details available for input: '" + place.name + "'");
+        return;
+    }
+    
+    document.getElementById("autocomplete").value = place.formatted_address;
+    map.setCenter(place.geometry.location);
+    map.setZoom(15);
+}
+
+function initCustomAutocomplete() {
+    const input = document.getElementById("autocomplete");
+    const dropdown = document.createElement("div");
+    dropdown.className = "autocomplete-dropdown";
+    dropdown.style.display = "none";
+    input.parentNode.appendChild(dropdown);
+
+    input.addEventListener("input", debounce(function() {
+        const value = this.value;
+        if (value.length > 2) {
+            const service = new google.maps.places.AutocompleteService();
+            service.getPlacePredictions({ input: value, types: ['geocode'] }, function(predictions, status) {
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    displaySuggestions(predictions);
+                }
+            });
+        } else {
+            dropdown.style.display = "none";
+        }
+    }, 300));
+
+    function displaySuggestions(predictions) {
+        dropdown.innerHTML = "";
+        dropdown.style.display = "block";
+        predictions.forEach(prediction => {
+            const div = document.createElement("div");
+            div.textContent = prediction.description;
+            div.addEventListener("click", function() {
+                input.value = prediction.description;
+                dropdown.style.display = "none";
+                const geocoder = new google.maps.Geocoder();
+                geocoder.geocode({ placeId: prediction.place_id }, function(results, status) {
+                    if (status === "OK") {
+                        map.setCenter(results[0].geometry.location);
+                        map.setZoom(15);
+                    }
+                });
+            });
+            dropdown.appendChild(div);
+        });
+    }
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
 }
 
 function searchRestaurants() {
     const location = document.getElementById("autocomplete").value;
     const filters = Array.from(document.querySelectorAll('input[name="filters"]:checked')).map(el => el.value);
     
-    // Show loading indicator
     document.getElementById("loading").classList.remove("hidden");
     document.getElementById("results").innerHTML = "";
 
@@ -59,14 +116,13 @@ function searchRestaurants() {
     })
     .then(response => response.json())
     .then(data => {
-        // Hide loading indicator
         document.getElementById("loading").classList.add("hidden");
         displayRestaurants(data);
     })
     .catch(error => {
         console.error('Error:', error);
-        // Hide loading indicator in case of error
         document.getElementById("loading").classList.add("hidden");
+        alert("An error occurred while searching for restaurants. Please try again.");
     });
 }
 
@@ -89,7 +145,6 @@ function displayRestaurants(restaurants) {
         map.fitBounds(bounds);
     }
 
-    // Initialize marker clustering
     if (markerCluster) {
         markerCluster.clearMarkers();
     }
@@ -97,7 +152,6 @@ function displayRestaurants(restaurants) {
         imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
     });
 
-    // Add share button for search results
     const shareButton = document.createElement("button");
     shareButton.textContent = "Share Results";
     shareButton.className = "bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 mt-4";
@@ -237,5 +291,11 @@ function initDarkMode() {
     });
 }
 
-// Ensure the map is initialized when the page loads
-document.addEventListener('DOMContentLoaded', initMap);
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof google === 'undefined') {
+        console.error('Google Maps API failed to load');
+        alert('An error occurred while loading the map. Please refresh the page and try again.');
+    } else {
+        initMap();
+    }
+});

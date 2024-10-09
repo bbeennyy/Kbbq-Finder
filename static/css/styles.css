@@ -98,7 +98,6 @@ body, html {
     font-weight: 700;
 }
 
-/* Dark mode styles */
 body.dark-mode {
     background-color: #1a202c;
     color: #e2e8f0;
@@ -136,7 +135,6 @@ body.dark-mode {
     background-color: #4a5568;
 }
 
-/* Loading indicator styles */
 .loading-indicator {
     display: flex;
     flex-direction: column;
@@ -166,4 +164,34 @@ body.dark-mode {
 .dark-mode .spinner {
     border-color: #4a5568;
     border-top-color: #3498db;
+}
+
+.autocomplete-dropdown {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.autocomplete-dropdown div {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.autocomplete-dropdown div:hover {
+    background-color: #f0f0f0;
+}
+
+.dark-mode .autocomplete-dropdown {
+    background-color: #2d3748;
+    border-color: #4a5568;
+}
+
+.dark-mode .autocomplete-dropdown div:hover {
+    background-color: #4a5568;
 }
