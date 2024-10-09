@@ -49,7 +49,7 @@ function displayRestaurants(restaurants) {
 
 function createRestaurantCard(restaurant) {
     const card = document.createElement("div");
-    card.className = "restaurant-card bg-white rounded-lg shadow-md p-4 mb-4";
+    card.className = "restaurant-card";
     card.innerHTML = `
         <h2 class="text-xl font-bold mb-2">${restaurant.name}</h2>
         <p class="text-gray-600 mb-2">${restaurant.address}</p>
