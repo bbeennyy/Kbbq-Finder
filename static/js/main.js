@@ -89,11 +89,7 @@ function addMarker(restaurant) {
     const marker = new google.maps.Marker({
         position: { lat: restaurant.latitude, lng: restaurant.longitude },
         map: map,
-        title: restaurant.name,
-        icon: {
-            url: restaurant.photo_url || 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-            scaledSize: new google.maps.Size(32, 32),
-        }
+        title: restaurant.name
     });
 
     const infoWindow = new google.maps.InfoWindow({
