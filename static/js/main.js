@@ -161,6 +161,31 @@ function showInviteForm(restaurantId) {
     const restaurantIdInput = document.getElementById('restaurantId');
     restaurantIdInput.value = restaurantId;
     modal.classList.remove('hidden');
+    
+    // Add event listener to close button
+    const closeBtn = document.getElementById('closeModalBtn');
+    closeBtn.addEventListener('click', closeInviteForm);
+    
+    // Add event listener to close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            closeInviteForm();
+        }
+    });
+}
+
+function closeInviteForm() {
+    const modal = document.getElementById('inviteModal');
+    modal.classList.add('hidden');
+    clearInviteForm();
+    clearInviteError();
+}
+
+function clearInviteForm() {
+    document.getElementById('restaurantId').value = '';
+    document.getElementById('recipientUsername').value = '';
+    document.getElementById('invitationMessage').value = '';
+    document.getElementById('invitationDateTime').value = '';
 }
 
 function displayInviteError(message) {
@@ -209,12 +234,6 @@ function sendInvitation() {
         console.error('Error:', error);
         displayInviteError('An error occurred while sending the invitation. Please try again.');
     });
-}
-
-function closeInviteForm() {
-    const modal = document.getElementById('inviteModal');
-    modal.classList.add('hidden');
-    clearInviteError();
 }
 
 function recenterMap() {
