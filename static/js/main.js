@@ -89,7 +89,7 @@ function createRestaurantCard(restaurant) {
         <button onclick="toggleFavorite(${restaurant.id})" id="favorite-btn-${restaurant.id}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mr-2">
             Add to Favorites
         </button>
-        <button onclick="showInviteForm(${restaurant.id})" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+        <button class="invite-friend-btn bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600" data-restaurant-id="${restaurant.id}">
             Invite Friend
         </button>
     `;
@@ -162,11 +162,9 @@ function showInviteForm(restaurantId) {
     restaurantIdInput.value = restaurantId;
     modal.style.display = 'flex';
     
-    // Add event listener to close button
     const closeBtn = document.getElementById('closeModalBtn');
     closeBtn.onclick = closeInviteForm;
     
-    // Add event listener to close modal when clicking outside
     window.onclick = function(event) {
         if (event.target === modal) {
             closeInviteForm();
@@ -277,4 +275,13 @@ function respondInvitation(invitationId, response) {
     .catch(error => console.error('Error:', error));
 }
 
-document.addEventListener('DOMContentLoaded', initMap);
+document.addEventListener('DOMContentLoaded', function() {
+    initMap();
+    
+    document.body.addEventListener('click', function(event) {
+        if (event.target.classList.contains('invite-friend-btn')) {
+            const restaurantId = event.target.getAttribute('data-restaurant-id');
+            showInviteForm(restaurantId);
+        }
+    });
+});
