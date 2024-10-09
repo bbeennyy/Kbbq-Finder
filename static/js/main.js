@@ -176,22 +176,21 @@ function clearInviteError() {
 }
 
 function sendInvitation() {
-    const restaurantId = document.getElementById('restaurantId');
-    const recipientUsername = document.getElementById('recipientUsername');
-    const message = document.getElementById('invitationMessage');
-    const dateTime = document.getElementById('invitationDateTime');
+    const restaurantId = document.getElementById('restaurantId').value;
+    const recipientUsername = document.getElementById('recipientUsername').value;
+    const message = document.getElementById('invitationMessage').value;
+    const dateTime = document.getElementById('invitationDateTime').value;
 
-    if (!restaurantId || !recipientUsername || !message || !dateTime) {
-        console.error('One or more form elements are missing');
-        displayInviteError('Error: Unable to send invitation. Please try again.');
+    if (!restaurantId || !recipientUsername || !dateTime) {
+        displayInviteError('Please fill in all required fields.');
         return;
     }
 
     const formData = new FormData();
-    formData.append('restaurant_id', restaurantId.value);
-    formData.append('recipient_username', recipientUsername.value);
-    formData.append('message', message.value);
-    formData.append('date_time', dateTime.value);
+    formData.append('restaurant_id', restaurantId);
+    formData.append('recipient_username', recipientUsername);
+    formData.append('message', message);
+    formData.append('date_time', dateTime);
 
     fetch('/send_invitation', {
         method: 'POST',
@@ -241,7 +240,6 @@ function closeAcceptancePopup() {
     popup.classList.add('hidden');
 }
 
-// Update the respondInvitation function to use the new showPopup function
 function respondInvitation(invitationId, response) {
     fetch(`/respond_invitation/${invitationId}/${response}`, {
         method: 'POST',
