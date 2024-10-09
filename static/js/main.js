@@ -10,13 +10,15 @@ function initMap() {
 
 function searchRestaurants() {
     const location = document.getElementById("location").value;
+    const filters = Array.from(document.querySelectorAll('input[name="filters"]:checked')).map(el => el.value);
     
+    const formData = new FormData();
+    formData.append('location', location);
+    filters.forEach(filter => formData.append('filters', filter));
+
     fetch('/search', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `location=${encodeURIComponent(location)}`
+        body: formData
     })
     .then(response => response.json())
     .then(data => {

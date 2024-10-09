@@ -15,6 +15,7 @@ def index():
 @app.route('/search', methods=['POST'])
 def search():
     location = request.form.get('location')
+    filters = request.form.getlist('filters')
     
     # Geocode the location
     geocode_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={quote(location)}&key={GOOGLE_MAPS_API_KEY}"
@@ -36,17 +37,31 @@ def search():
     restaurants = []
     for result in search_response['results']:
         place_id = result['place_id']
+        
+        # Get place details to check for filters
+        details_url = f"https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&fields=name,vicinity,rating,geometry,price_level,review&key={GOOGLE_MAPS_API_KEY}"
+        details_response = requests.get(details_url).json()
+        
+        if details_response['status'] != 'OK':
+            continue
+        
+        details = details_response['result']
+        
+        # Check if the restaurant matches the filters
+        if not all(check_filter(details, filter) for filter in filters):
+            continue
+        
         existing_restaurant = Restaurant.query.filter_by(place_id=place_id).first()
         
         if existing_restaurant:
             restaurants.append(existing_restaurant.to_dict())
         else:
             new_restaurant = Restaurant(
-                name=result['name'],
-                address=result['vicinity'],
-                latitude=result['geometry']['location']['lat'],
-                longitude=result['geometry']['location']['lng'],
-                rating=result.get('rating'),
+                name=details['name'],
+                address=details['vicinity'],
+                latitude=details['geometry']['location']['lat'],
+                longitude=details['geometry']['location']['lng'],
+                rating=details.get('rating'),
                 place_id=place_id
             )
             db.session.add(new_restaurant)
@@ -54,6 +69,17 @@ def search():
             restaurants.append(new_restaurant.to_dict())
     
     return jsonify(restaurants)
+
+def check_filter(details, filter):
+    if filter == 'high_rating':
+        return details.get('rating', 0) >= 4.5
+    elif filter == 'affordable':
+        return details.get('price_level', 2) <= 2
+    elif filter == 'outdoor_seating':
+        return any('outdoor seating' in review.get('text', '').lower() for review in details.get('reviews', []))
+    elif filter == 'bbq_grill':
+        return any('bbq grill' in review.get('text', '').lower() for review in details.get('reviews', []))
+    return True
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
