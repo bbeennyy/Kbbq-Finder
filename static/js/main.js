@@ -61,6 +61,9 @@ function displayRestaurants(restaurants) {
     }
 
     // Initialize marker clustering
+    if (markerCluster) {
+        markerCluster.clearMarkers();
+    }
     markerCluster = new MarkerClusterer(map, markers, {
         imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
     });
@@ -113,9 +116,6 @@ function addMarker(restaurant) {
 }
 
 function clearMarkers() {
-    if (markerCluster) {
-        markerCluster.clearMarkers();
-    }
     markers.forEach(marker => marker.setMap(null));
     markers = [];
 }
@@ -143,3 +143,6 @@ function toggleFavorite(restaurantId) {
         })
         .catch(error => console.error('Error:', error));
 }
+
+// Ensure the map is initialized when the page loads
+document.addEventListener('DOMContentLoaded', initMap);
