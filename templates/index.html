@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="top-menu">
-        <h1 class="text-xl font-bold mr-4">Korean BBQ Restaurant Finder</h1>
+        <h1 class="text-xl font-bold">Korean BBQ Restaurant Finder</h1>
         <div class="user-actions">
             {% if current_user.is_authenticated %}
                 <span class="mr-2">Welcome, {{ current_user.username }}!</span>
@@ -37,10 +37,11 @@
         </div>
         <div class="map-container">
             <div id="map"></div>
+            <div class="below-map"></div>
         </div>
     </div>
     <script src='https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js'></script>
     <script src='{{ url_for('static', filename='js/main.js') }}'></script>
-    <script src='https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap&libraries=places' async defer></script>
+    <script src='https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap&libraries=places' async></script>
 </body>
 </html>
