@@ -1,8 +1,9 @@
 import os
 import requests
-from flask import render_template, request, jsonify
+from flask import render_template, request, jsonify, redirect, url_for, flash
+from flask_login import login_user, logout_user, login_required, current_user
 from app import app, db
-from models import Restaurant
+from models import Restaurant, User
 from urllib.parse import quote
 
 GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY")
@@ -53,3 +54,71 @@ def search():
             restaurants.append(new_restaurant.to_dict())
     
     return jsonify(restaurants)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        
+        user = User.query.filter((User.username == username) | (User.email == email)).first()
+        if user:
+            flash('Username or email already exists')
+            return redirect(url_for('register'))
+        
+        new_user = User(username=username, email=email)
+        new_user.set_password(password)
+        db.session.add(new_user)
+        db.session.commit()
+        
+        login_user(new_user)
+        return redirect(url_for('index'))
+    
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        user = User.query.filter_by(username=username).first()
+        if user and user.check_password(password):
+            login_user(user)
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid username or password')
+    
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+@app.route('/favorite/<int:restaurant_id>', methods=['POST'])
+@login_required
+def favorite_restaurant(restaurant_id):
+    restaurant = Restaurant.query.get_or_404(restaurant_id)
+    if restaurant not in current_user.favorite_restaurants:
+        current_user.favorite_restaurants.append(restaurant)
+        db.session.commit()
+        return jsonify({'status': 'success', 'message': 'Restaurant added to favorites'})
+    return jsonify({'status': 'error', 'message': 'Restaurant already in favorites'})
+
+@app.route('/unfavorite/<int:restaurant_id>', methods=['POST'])
+@login_required
+def unfavorite_restaurant(restaurant_id):
+    restaurant = Restaurant.query.get_or_404(restaurant_id)
+    if restaurant in current_user.favorite_restaurants:
+        current_user.favorite_restaurants.remove(restaurant)
+        db.session.commit()
+        return jsonify({'status': 'success', 'message': 'Restaurant removed from favorites'})
+    return jsonify({'status': 'error', 'message': 'Restaurant not in favorites'})
+
+@app.route('/favorites')
+@login_required
+def favorites():
+    return render_template('favorites.html', favorites=current_user.favorite_restaurants)

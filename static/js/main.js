@@ -54,7 +54,10 @@ function createRestaurantCard(restaurant) {
         <h2 class="text-xl font-bold mb-2">${restaurant.name}</h2>
         <p class="text-gray-600 mb-2">${restaurant.address}</p>
         <p class="text-yellow-500 mb-2">Rating: ${restaurant.rating || 'N/A'}</p>
-        <button onclick="showOnMap(${restaurant.latitude}, ${restaurant.longitude})" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show on Map</button>
+        <button onclick="showOnMap(${restaurant.latitude}, ${restaurant.longitude})" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2">Show on Map</button>
+        <button onclick="toggleFavorite(${restaurant.id})" id="favorite-btn-${restaurant.id}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+            Add to Favorites
+        </button>
     `;
     return card;
 }
@@ -85,4 +88,23 @@ function clearMarkers() {
 function showOnMap(lat, lng) {
     map.setCenter({ lat, lng });
     map.setZoom(15);
+}
+
+function toggleFavorite(restaurantId) {
+    const favoriteBtn = document.getElementById(`favorite-btn-${restaurantId}`);
+    const isFavorite = favoriteBtn.textContent.trim() === 'Remove from Favorites';
+    const url = isFavorite ? `/unfavorite/${restaurantId}` : `/favorite/${restaurantId}`;
+
+    fetch(url, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                favoriteBtn.textContent = isFavorite ? 'Add to Favorites' : 'Remove from Favorites';
+                favoriteBtn.classList.toggle('bg-green-500');
+                favoriteBtn.classList.toggle('bg-red-500');
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
 }
