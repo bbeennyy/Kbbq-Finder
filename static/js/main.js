@@ -163,9 +163,16 @@ function showInviteForm(restaurantId) {
     modal.classList.remove('hidden');
 }
 
-function closeInviteForm() {
-    const modal = document.getElementById('inviteModal');
-    modal.classList.add('hidden');
+function displayInviteError(message) {
+    const errorElement = document.getElementById('inviteErrorMessage');
+    errorElement.textContent = message;
+    errorElement.style.display = 'block';
+}
+
+function clearInviteError() {
+    const errorElement = document.getElementById('inviteErrorMessage');
+    errorElement.textContent = '';
+    errorElement.style.display = 'none';
 }
 
 function sendInvitation() {
@@ -176,7 +183,7 @@ function sendInvitation() {
 
     if (!restaurantId || !recipientUsername || !message || !dateTime) {
         console.error('One or more form elements are missing');
-        alert('Error: Unable to send invitation. Please try again.');
+        displayInviteError('Error: Unable to send invitation. Please try again.');
         return;
     }
 
@@ -193,16 +200,21 @@ function sendInvitation() {
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            alert('Invitation sent successfully!');
             closeInviteForm();
         } else {
-            alert('Error: ' + data.message);
+            displayInviteError(data.message);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred while sending the invitation. Please try again.');
+        displayInviteError('An error occurred while sending the invitation. Please try again.');
     });
+}
+
+function closeInviteForm() {
+    const modal = document.getElementById('inviteModal');
+    modal.classList.add('hidden');
+    clearInviteError();
 }
 
 function recenterMap() {
