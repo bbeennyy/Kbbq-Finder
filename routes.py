@@ -199,9 +199,14 @@ def send_invitation():
 @app.route('/invitations')
 @login_required
 def view_invitations():
-    received_invitations = current_user.received_invitations.filter_by(status='pending').all()
-    sent_invitations = current_user.sent_invitations.all()
-    return render_template('invitations.html', received_invitations=received_invitations, sent_invitations=sent_invitations)
+    received_invitations = Invitation.query.filter_by(recipient_id=current_user.id, status='pending').all()
+    sent_invitations = Invitation.query.filter_by(sender_id=current_user.id).all()
+    accepted_invitations = Invitation.query.filter_by(recipient_id=current_user.id, status='accepted').all()
+    
+    return render_template('invitations.html', 
+                           received_invitations=received_invitations, 
+                           sent_invitations=sent_invitations,
+                           accepted_invitations=accepted_invitations)
 
 @app.route('/respond_invitation/<int:invitation_id>/<string:response>', methods=['POST'])
 @login_required
