@@ -158,6 +158,7 @@ function toggleFavorite(restaurantId) {
 }
 
 function showInviteForm(restaurantId) {
+    console.log('showInviteForm called with restaurantId:', restaurantId);
     const modal = document.getElementById('inviteModal');
     const restaurantIdInput = document.getElementById('restaurantId');
     restaurantIdInput.value = restaurantId;
@@ -174,6 +175,7 @@ function showInviteForm(restaurantId) {
 }
 
 function closeInviteForm() {
+    console.log('closeInviteForm called');
     const modal = document.getElementById('inviteModal');
     modal.style.display = 'none';
     clearInviteForm();
@@ -200,6 +202,7 @@ function clearInviteError() {
 }
 
 function sendInvitation() {
+    console.log('sendInvitation called');
     const restaurantId = document.getElementById('restaurantId').value;
     const recipientUsername = document.getElementById('recipientUsername').value;
     const message = document.getElementById('invitationMessage').value;
@@ -244,6 +247,7 @@ function recenterMap() {
 }
 
 function respondInvitation(invitationId, response) {
+    console.log('respondInvitation called with invitationId:', invitationId, 'and response:', response);
     fetch(`/respond_invitation/${invitationId}/${response}`, {
         method: 'POST',
     })
@@ -265,6 +269,7 @@ function respondInvitation(invitationId, response) {
 }
 
 function showAcceptancePopup(title, message) {
+    console.log('showAcceptancePopup called with title:', title, 'and message:', message);
     const popup = document.getElementById('acceptancePopup');
     const popupTitle = document.getElementById('acceptanceTitle');
     const popupMessage = document.getElementById('acceptanceMessage');
@@ -273,12 +278,13 @@ function showAcceptancePopup(title, message) {
     popupMessage.textContent = message;
     popup.style.display = 'flex';
     
-    void popup.offsetWidth;
-    
-    popup.classList.add('show');
+    setTimeout(() => {
+        popup.classList.add('show');
+    }, 10);
 }
 
 function closeAcceptancePopup() {
+    console.log('closeAcceptancePopup called');
     const popup = document.getElementById('acceptancePopup');
     popup.classList.remove('show');
     
@@ -288,18 +294,36 @@ function closeAcceptancePopup() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded event fired');
     initMap();
     
-    document.getElementById('inviteModal').style.display = 'none';
-    document.getElementById('acceptancePopup').style.display = 'none';
+    const inviteModal = document.getElementById('inviteModal');
+    const acceptancePopup = document.getElementById('acceptancePopup');
+    
+    if (inviteModal) {
+        inviteModal.style.display = 'none';
+    }
+    
+    if (acceptancePopup) {
+        acceptancePopup.style.display = 'none';
+    }
 
-    document.querySelectorAll('.invite-friend-btn').forEach(button => {
-        button.addEventListener('click', function(event) {
+    document.body.addEventListener('click', function(event) {
+        if (event.target.classList.contains('invite-friend-btn')) {
+            console.log('Invite Friend button clicked');
             event.preventDefault();
-            const restaurantId = this.getAttribute('data-restaurant-id');
+            const restaurantId = event.target.getAttribute('data-restaurant-id');
             showInviteForm(restaurantId);
-        });
+        }
     });
 
-    document.querySelector('#acceptancePopup .close').addEventListener('click', closeAcceptancePopup);
+    const closeAcceptanceBtn = document.querySelector('#acceptancePopup .close');
+    if (closeAcceptanceBtn) {
+        closeAcceptanceBtn.addEventListener('click', closeAcceptancePopup);
+    }
+
+    const sendInvitationBtn = document.querySelector('#inviteForm button');
+    if (sendInvitationBtn) {
+        sendInvitationBtn.addEventListener('click', sendInvitation);
+    }
 });
