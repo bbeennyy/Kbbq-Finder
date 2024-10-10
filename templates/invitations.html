@@ -27,9 +27,9 @@
 
         <h2 class="text-xl font-bold mb-2">Received Invitations</h2>
         {% if received_invitations %}
-            <ul class="mb-8">
+            <ul class="mb-8" id="receivedInvitationsList">
             {% for invitation in received_invitations %}
-                <li class="mb-4 p-4 bg-white shadow rounded">
+                <li class="mb-4 p-4 bg-white shadow rounded" data-invitation-id="{{ invitation.id }}">
                     <p><strong>From:</strong> {{ invitation.sender.username }}</p>
                     <p><strong>Restaurant:</strong> {{ invitation.restaurant.name }}</p>
                     <p><strong>Message:</strong> {{ invitation.message }}</p>
@@ -78,6 +78,15 @@
                 <input type="datetime-local" id="rescheduleDateTime" required>
                 <button type="button" onclick="rescheduleInvitation()">Reschedule</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Acceptance Pop-up -->
+    <div id="acceptancePopup" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeAcceptancePopup()">&times;</span>
+            <h3 id="acceptanceTitle" class="text-lg leading-6 font-medium text-gray-900"></h3>
+            <p id="acceptanceMessage" class="mt-2 text-sm text-gray-500"></p>
         </div>
     </div>
 

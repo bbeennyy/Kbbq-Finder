@@ -158,7 +158,6 @@ function toggleFavorite(restaurantId) {
 }
 
 function showInviteForm(restaurantId) {
-    console.log('showInviteForm called with restaurantId:', restaurantId);
     const modal = document.getElementById('inviteModal');
     const restaurantIdInput = document.getElementById('restaurantId');
     restaurantIdInput.value = restaurantId;
@@ -177,7 +176,6 @@ function showInviteForm(restaurantId) {
 }
 
 function closeInviteForm() {
-    console.log('closeInviteForm called');
     const modal = document.getElementById('inviteModal');
     modal.style.display = 'none';
     clearInviteForm();
@@ -204,7 +202,6 @@ function clearInviteError() {
 }
 
 function sendInvitation() {
-    console.log('sendInvitation called');
     const restaurantId = document.getElementById('restaurantId').value;
     const recipientUsername = document.getElementById('recipientUsername').value;
     const message = document.getElementById('invitationMessage').value;
@@ -256,25 +253,40 @@ function respondInvitation(invitationId, response) {
             'X-CSRFToken': getCookie('csrf_token')
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.status === 'success') {
             showAcceptancePopup('Invitation Response', data.message);
-            setTimeout(() => {
-                location.reload();
-            }, 2000);
+            updateInvitationUI(invitationId, response);
         } else {
             showAcceptancePopup('Error', 'Error: ' + data.message);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showAcceptancePopup('Error', 'An error occurred while processing your response.');
+        showAcceptancePopup('Error', 'An error occurred while processing your response. Please try again.');
     });
 }
 
+function updateInvitationUI(invitationId, response) {
+    const invitationElement = document.querySelector(`[data-invitation-id="${invitationId}"]`).closest('li');
+    if (invitationElement) {
+        if (response === 'accept') {
+            invitationElement.classList.add('bg-green-100');
+            invitationElement.innerHTML = `<p>Invitation accepted</p>`;
+        } else if (response === 'decline') {
+            invitationElement.classList.add('bg-red-100');
+            invitationElement.innerHTML = `<p>Invitation declined</p>`;
+        }
+    }
+}
+
 function showAcceptancePopup(title, message) {
-    console.log('showAcceptancePopup called with title:', title, 'and message:', message);
     const popup = document.getElementById('acceptancePopup');
     const popupTitle = document.getElementById('acceptanceTitle');
     const popupMessage = document.getElementById('acceptanceMessage');
@@ -286,10 +298,13 @@ function showAcceptancePopup(title, message) {
     setTimeout(() => {
         popup.classList.add('show');
     }, 10);
+
+    setTimeout(() => {
+        closeAcceptancePopup();
+    }, 3000);
 }
 
 function closeAcceptancePopup() {
-    console.log('closeAcceptancePopup called');
     const popup = document.getElementById('acceptancePopup');
     popup.classList.remove('show');
     
@@ -299,10 +314,8 @@ function closeAcceptancePopup() {
 }
 
 function initFriendAutocomplete() {
-    console.log('initFriendAutocomplete function called');
     $("#recipientUsername").autocomplete({
         source: function(request, response) {
-            console.log('Autocomplete source function called with query:', request.term);
             $.ajax({
                 url: "/friend_autocomplete",
                 dataType: "json",
@@ -310,7 +323,6 @@ function initFriendAutocomplete() {
                     query: request.term
                 },
                 success: function(data) {
-                    console.log('Received autocomplete data:', data);
                     response(data.map(function(item) {
                         return {
                             label: item.username,
@@ -333,7 +345,6 @@ function initFriendAutocomplete() {
             .append(`<div>${item.label}</div>`)
             .appendTo(ul);
     };
-    console.log('Autocomplete initialized on #recipientUsername');
 }
 
 function showRescheduleForm(invitationId) {
@@ -412,7 +423,6 @@ function rescheduleInvitation() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOMContentLoaded event fired');
     initMap();
     
     const inviteModal = document.getElementById('inviteModal');
@@ -428,18 +438,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.body.addEventListener('click', function(event) {
         if (event.target.classList.contains('invite-friend-btn')) {
-            console.log('Invite Friend button clicked');
             event.preventDefault();
             const restaurantId = event.target.getAttribute('data-restaurant-id');
             showInviteForm(restaurantId);
-        } else if (event.target.classList.contains('accept-invitation-btn')) {
+        } else if (event.target.classList.contains('accept-invitation-btn') || event.target.classList.contains('decline-invitation-btn')) {
             event.preventDefault();
             const invitationId = event.target.getAttribute('data-invitation-id');
-            respondInvitation(invitationId, 'accept');
-        } else if (event.target.classList.contains('decline-invitation-btn')) {
-            event.preventDefault();
-            const invitationId = event.target.getAttribute('data-invitation-id');
-            respondInvitation(invitationId, 'decline');
+            const response = event.target.classList.contains('accept-invitation-btn') ? 'accept' : 'decline';
+            respondInvitation(invitationId, response);
         }
     });
 
