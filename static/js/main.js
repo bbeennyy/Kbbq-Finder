@@ -172,6 +172,8 @@ function showInviteForm(restaurantId) {
             closeInviteForm();
         }
     };
+
+    initFriendAutocomplete();
 }
 
 function closeInviteForm() {
@@ -307,7 +309,7 @@ function initFriendAutocomplete() {
                     console.log('Received autocomplete data:', data);
                     response(data.map(function(item) {
                         return {
-                            label: `${item.username} (ID: ${item.id})`,
+                            label: item.username,
                             value: item.username,
                             id: item.id
                         };
@@ -414,7 +416,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (inviteModal) {
         inviteModal.style.display = 'none';
-        initFriendAutocomplete();
     }
     
     if (acceptancePopup) {

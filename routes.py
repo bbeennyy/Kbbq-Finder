@@ -6,6 +6,7 @@ from app import app, db
 from models import Restaurant, User, Invitation
 from urllib.parse import quote
 from datetime import datetime
+import logging
 
 GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY")
 
@@ -310,8 +311,11 @@ def friend_suggestions():
 @login_required
 def friend_autocomplete():
     query = request.args.get('query', '')
+    logging.info(f"Friend autocomplete called with query: {query}")
     friends = User.query.filter(
         User.username.ilike(f'%{query}%'),
         User.id.in_([friend.id for friend in current_user.friends])
     ).limit(5).all()
-    return jsonify([{'id': user.id, 'username': user.username} for user in friends])
+    result = [{'id': user.id, 'username': user.username} for user in friends]
+    logging.info(f"Friend autocomplete returning: {result}")
+    return jsonify(result)
