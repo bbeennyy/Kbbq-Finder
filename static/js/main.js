@@ -272,11 +272,19 @@ function showAcceptancePopup(title, message) {
     popupTitle.textContent = title;
     popupMessage.textContent = message;
     popup.style.display = 'flex';
+    
+    void popup.offsetWidth;
+    
+    popup.classList.add('show');
 }
 
 function closeAcceptancePopup() {
     const popup = document.getElementById('acceptancePopup');
-    popup.style.display = 'none';
+    popup.classList.remove('show');
+    
+    setTimeout(() => {
+        popup.style.display = 'none';
+    }, 300);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -286,9 +294,12 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('acceptancePopup').style.display = 'none';
 
     document.querySelectorAll('.invite-friend-btn').forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
             const restaurantId = this.getAttribute('data-restaurant-id');
             showInviteForm(restaurantId);
         });
     });
+
+    document.querySelector('#acceptancePopup .close').addEventListener('click', closeAcceptancePopup);
 });
