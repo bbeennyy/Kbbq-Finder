@@ -89,7 +89,7 @@ function createRestaurantCard(restaurant) {
         <button onclick="toggleFavorite(${restaurant.id})" id="favorite-btn-${restaurant.id}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mr-2">
             Add to Favorites
         </button>
-        <button onclick="showInviteForm(${restaurant.id})" class="invite-friend-btn bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+        <button onclick="showInviteForm(${restaurant.id})" class="invite-friend-btn bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600" data-restaurant-id="${restaurant.id}">
             Invite Friend
         </button>
     `;
@@ -281,4 +281,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.getElementById('inviteModal').style.display = 'none';
     document.getElementById('acceptancePopup').style.display = 'none';
+
+    // Add event listeners to all "Invite Friend" buttons
+    document.querySelectorAll('.invite-friend-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const restaurantId = this.getAttribute('data-restaurant-id');
+            showInviteForm(restaurantId);
+        });
+    });
 });
