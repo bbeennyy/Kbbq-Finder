@@ -6,7 +6,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128))
+    password_hash = db.Column(db.String(256))
     favorite_restaurants = db.relationship('Restaurant', secondary='user_favorites', back_populates='favorited_by')
     sent_invitations = db.relationship('Invitation', foreign_keys='Invitation.sender_id', backref='sender', lazy='dynamic')
     received_invitations = db.relationship('Invitation', foreign_keys='Invitation.recipient_id', backref='recipient', lazy='dynamic')
