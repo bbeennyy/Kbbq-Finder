@@ -185,6 +185,16 @@ def send_invitation():
     if not restaurant:
         return jsonify({'status': 'error', 'message': 'Restaurant not found'}), 404
 
+    existing_invitation = Invitation.query.filter_by(
+        sender_id=current_user.id,
+        recipient_id=recipient.id,
+        restaurant_id=restaurant_id,
+        date_time=date_time
+    ).first()
+
+    if existing_invitation:
+        return jsonify({'status': 'error', 'message': 'Invitation already sent'}), 400
+
     invitation = Invitation(
         sender_id=current_user.id,
         recipient_id=recipient.id,

@@ -251,6 +251,10 @@ function recenterMap() {
 function respondInvitation(invitationId, response) {
     fetch(`/respond_invitation/${invitationId}/${response}`, {
         method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrf_token')
+        }
     })
     .then(response => response.json())
     .then(data => {
@@ -428,6 +432,14 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
             const restaurantId = event.target.getAttribute('data-restaurant-id');
             showInviteForm(restaurantId);
+        } else if (event.target.classList.contains('accept-invitation-btn')) {
+            event.preventDefault();
+            const invitationId = event.target.getAttribute('data-invitation-id');
+            respondInvitation(invitationId, 'accept');
+        } else if (event.target.classList.contains('decline-invitation-btn')) {
+            event.preventDefault();
+            const invitationId = event.target.getAttribute('data-invitation-id');
+            respondInvitation(invitationId, 'decline');
         }
     });
 
@@ -440,4 +452,21 @@ document.addEventListener('DOMContentLoaded', function() {
     if (sendInvitationBtn) {
         sendInvitationBtn.addEventListener('click', sendInvitation);
     }
+
+    initFriendAutocomplete();
 });
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
