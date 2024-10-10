@@ -247,7 +247,6 @@ function recenterMap() {
 }
 
 function respondInvitation(invitationId, response) {
-    console.log('respondInvitation called with invitationId:', invitationId, 'and response:', response);
     fetch(`/respond_invitation/${invitationId}/${response}`, {
         method: 'POST',
     })
