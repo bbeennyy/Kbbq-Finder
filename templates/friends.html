@@ -11,13 +11,14 @@
     <div class="container mx-auto mt-8">
         <h1 class="text-2xl font-bold mb-4">Friends</h1>
         <div class="mb-8">
-            <h2 class="text-xl font-bold mb-2">Add a Friend</h2>
-            <form id="addFriendForm" class="flex items-center">
-                <input type="text" id="friendUsername" placeholder="Enter username" class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mr-2">
+            <h2 class="text-xl font-bold mb-2">Find and Add Friends</h2>
+            <form id="searchFriendForm" class="flex items-center">
+                <input type="text" id="searchUsername" placeholder="Search for users" class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mr-2">
                 <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    Add Friend
+                    Search
                 </button>
             </form>
+            <div id="searchResults" class="mt-4"></div>
         </div>
         <div>
             <h2 class="text-xl font-bold mb-2">Your Friends</h2>
@@ -41,84 +42,6 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $("#friendUsername").autocomplete({
-                source: function(request, response) {
-                    $.ajax({
-                        url: "/friend_suggestions",
-                        dataType: "json",
-                        data: {
-                            query: request.term
-                        },
-                        success: function(data) {
-                            response(data.map(function(item) {
-                                return {
-                                    label: item.username,
-                                    value: item.username
-                                };
-                            }));
-                        }
-                    });
-                },
-                minLength: 2,
-                select: function(event, ui) {
-                    console.log("Selected: " + ui.item.value);
-                }
-            });
-
-            $("#addFriendForm").submit(function(event) {
-                event.preventDefault();
-                const friendUsername = $("#friendUsername").val();
-                addFriend(friendUsername);
-            });
-        });
-
-        function addFriend(username) {
-            fetch('/add_friend', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `friend_username=${encodeURIComponent(username)}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    location.reload();
-                } else {
-                    alert(data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while adding the friend.');
-            });
-        }
-
-        function removeFriend(username) {
-            if (confirm(`Are you sure you want to remove ${username} from your friends?`)) {
-                fetch('/remove_friend', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `friend_username=${encodeURIComponent(username)}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        location.reload();
-                    } else {
-                        alert(data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while removing the friend.');
-                });
-            }
-        }
-    </script>
+    <script src="{{ url_for('static', filename='js/friends.js') }}"></script>
 </body>
 </html>

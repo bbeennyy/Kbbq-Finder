@@ -223,6 +223,36 @@ def respond_invitation(invitation_id, response):
 
     return jsonify({'status': 'success', 'message': f'Invitation {invitation.status}'})
 
+@app.route('/reschedule_invitation', methods=['POST'])
+@login_required
+def reschedule_invitation():
+    invitation_id = request.form.get('invitation_id')
+    new_date_time_str = request.form.get('new_date_time')
+
+    if not invitation_id or not new_date_time_str:
+        return jsonify({'status': 'error', 'message': 'Missing required information'}), 400
+
+    try:
+        new_date_time = datetime.strptime(new_date_time_str, '%Y-%m-%dT%H:%M')
+    except ValueError:
+        return jsonify({'status': 'error', 'message': 'Invalid date and time format'}), 400
+
+    invitation = Invitation.query.get_or_404(invitation_id)
+
+    if invitation.recipient_id != current_user.id:
+        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
+
+    invitation.date_time = new_date_time
+    db.session.commit()
+
+    # Send notification to the sender
+    sender = User.query.get(invitation.sender_id)
+    # Here you would implement the logic to send a notification to the sender
+    # For now, we'll just print a message
+    print(f"Notification: Invitation {invitation_id} has been rescheduled by {current_user.username}")
+
+    return jsonify({'status': 'success', 'message': 'Invitation rescheduled successfully'})
+
 @app.route('/add_friend', methods=['POST'])
 @login_required
 def add_friend():

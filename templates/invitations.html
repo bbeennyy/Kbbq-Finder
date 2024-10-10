@@ -37,6 +37,7 @@
                     <div class="mt-2">
                         <button onclick="respondInvitation({{ invitation.id }}, 'accept')" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Accept</button>
                         <button onclick="respondInvitation({{ invitation.id }}, 'decline')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 ml-2">Decline</button>
+                        <button onclick="showRescheduleForm({{ invitation.id }})" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 ml-2">Reschedule</button>
                     </div>
                 </li>
             {% endfor %}
@@ -65,22 +66,21 @@
         <a href="{{ url_for('index') }}" class="mt-8 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Back to Search</a>
     </div>
 
-    <script>
-        function respondInvitation(invitationId, response) {
-            fetch(`/respond_invitation/${invitationId}/${response}`, {
-                method: 'POST',
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    alert(data.message);
-                    location.reload();
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        }
-    </script>
+    <!-- Reschedule Modal -->
+    <div id="rescheduleModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span id="closeRescheduleModalBtn" class="close">&times;</span>
+            <h2>Reschedule Invitation</h2>
+            <div id="rescheduleErrorMessage" class="error-message"></div>
+            <form id="rescheduleForm">
+                <input type="hidden" id="rescheduleInvitationId">
+                <label for="rescheduleDateTime">New Date and Time:</label>
+                <input type="datetime-local" id="rescheduleDateTime" required>
+                <button type="button" onclick="rescheduleInvitation()">Reschedule</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

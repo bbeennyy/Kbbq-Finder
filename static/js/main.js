@@ -307,8 +307,9 @@ function initFriendAutocomplete() {
                     console.log('Received autocomplete data:', data);
                     response(data.map(function(item) {
                         return {
-                            label: item.username,
-                            value: item.username
+                            label: `${item.username} (ID: ${item.id})`,
+                            value: item.username,
+                            id: item.id
                         };
                     }));
                 },
@@ -321,8 +322,87 @@ function initFriendAutocomplete() {
         select: function(event, ui) {
             console.log("Selected: " + ui.item.value);
         }
-    });
+    }).autocomplete("instance")._renderItem = function(ul, item) {
+        return $("<li>")
+            .append(`<div>${item.label}</div>`)
+            .appendTo(ul);
+    };
     console.log('Autocomplete initialized on #recipientUsername');
+}
+
+function showRescheduleForm(invitationId) {
+    const modal = document.getElementById('rescheduleModal');
+    const invitationIdInput = document.getElementById('rescheduleInvitationId');
+    invitationIdInput.value = invitationId;
+    modal.style.display = 'flex';
+    
+    const closeBtn = document.getElementById('closeRescheduleModalBtn');
+    closeBtn.onclick = closeRescheduleForm;
+    
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            closeRescheduleForm();
+        }
+    };
+}
+
+function closeRescheduleForm() {
+    const modal = document.getElementById('rescheduleModal');
+    modal.style.display = 'none';
+    clearRescheduleForm();
+    clearRescheduleError();
+}
+
+function clearRescheduleForm() {
+    document.getElementById('rescheduleInvitationId').value = '';
+    document.getElementById('rescheduleDateTime').value = '';
+}
+
+function displayRescheduleError(message) {
+    const errorElement = document.getElementById('rescheduleErrorMessage');
+    errorElement.textContent = message;
+    errorElement.style.display = 'block';
+}
+
+function clearRescheduleError() {
+    const errorElement = document.getElementById('rescheduleErrorMessage');
+    errorElement.textContent = '';
+    errorElement.style.display = 'none';
+}
+
+function rescheduleInvitation() {
+    const invitationId = document.getElementById('rescheduleInvitationId').value;
+    const newDateTime = document.getElementById('rescheduleDateTime').value;
+
+    if (!invitationId || !newDateTime) {
+        displayRescheduleError('Please fill in all required fields.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('invitation_id', invitationId);
+    formData.append('new_date_time', newDateTime);
+
+    fetch('/reschedule_invitation', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            closeRescheduleForm();
+            showAcceptancePopup('Success', 'Invitation rescheduled successfully');
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            displayRescheduleError(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        displayRescheduleError('An error occurred while rescheduling the invitation. Please try again.');
+    });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
