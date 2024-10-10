@@ -279,7 +279,6 @@ function respondInvitation(invitationId, response) {
 document.addEventListener('DOMContentLoaded', function() {
     initMap();
     
-    // Hide pop-ups on initial load
     document.getElementById('inviteModal').style.display = 'none';
     document.getElementById('acceptancePopup').style.display = 'none';
 });
