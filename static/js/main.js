@@ -408,13 +408,13 @@ function rescheduleInvitation() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOMContentLoaded event fired');
     initMap();
-    initFriendAutocomplete();
     
     const inviteModal = document.getElementById('inviteModal');
     const acceptancePopup = document.getElementById('acceptancePopup');
     
     if (inviteModal) {
         inviteModal.style.display = 'none';
+        initFriendAutocomplete();
     }
     
     if (acceptancePopup) {
