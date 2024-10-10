@@ -129,6 +129,7 @@ body, html {
     border: 1px solid rgba(255, 255, 255, 0.18);
     transform: scale(0.9);
     transition: transform 0.3s ease-in-out;
+    color: #ffffff;
 }
 
 #acceptancePopup.show .modal-content {
@@ -139,13 +140,11 @@ body, html {
     margin-bottom: 1rem;
     font-size: 1.8rem;
     font-weight: 600;
-    color: #ffffff;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 #acceptancePopup p {
     margin-bottom: 1.5rem;
-    color: #f0f4f8;
     font-size: 1.1rem;
     line-height: 1.6;
 }
