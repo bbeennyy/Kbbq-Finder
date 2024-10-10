@@ -292,9 +292,36 @@ function closeAcceptancePopup() {
     }, 300);
 }
 
+function initFriendAutocomplete() {
+    $("#recipientUsername").autocomplete({
+        source: function(request, response) {
+            $.ajax({
+                url: "/friend_autocomplete",
+                dataType: "json",
+                data: {
+                    query: request.term
+                },
+                success: function(data) {
+                    response(data.map(function(item) {
+                        return {
+                            label: item.username,
+                            value: item.username
+                        };
+                    }));
+                }
+            });
+        },
+        minLength: 2,
+        select: function(event, ui) {
+            console.log("Selected: " + ui.item.value);
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOMContentLoaded event fired');
     initMap();
+    initFriendAutocomplete();
     
     const inviteModal = document.getElementById('inviteModal');
     const acceptancePopup = document.getElementById('acceptancePopup');

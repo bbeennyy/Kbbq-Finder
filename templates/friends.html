@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friends - Korean BBQ Restaurant Finder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+</head>
+<body>
+    <div class="container mx-auto mt-8">
+        <h1 class="text-2xl font-bold mb-4">Friends</h1>
+        <div class="mb-8">
+            <h2 class="text-xl font-bold mb-2">Add a Friend</h2>
+            <form id="addFriendForm" class="flex items-center">
+                <input type="text" id="friendUsername" placeholder="Enter username" class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mr-2">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Add Friend
+                </button>
+            </form>
+        </div>
+        <div>
+            <h2 class="text-xl font-bold mb-2">Your Friends</h2>
+            <ul id="friendsList" class="list-disc list-inside">
+                {% for friend in friends %}
+                    <li class="mb-2">
+                        {{ friend.username }}
+                        <button onclick="removeFriend('{{ friend.username }}')" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline ml-2">
+                            Remove
+                        </button>
+                    </li>
+                {% else %}
+                    <li>You don't have any friends yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <a href="{{ url_for('index') }}" class="mt-8 inline-block bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            Back to Search
+        </a>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#friendUsername").autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: "/friend_suggestions",
+                        dataType: "json",
+                        data: {
+                            query: request.term
+                        },
+                        success: function(data) {
+                            response(data.map(function(item) {
+                                return {
+                                    label: item.username,
+                                    value: item.username
+                                };
+                            }));
+                        }
+                    });
+                },
+                minLength: 2,
+                select: function(event, ui) {
+                    console.log("Selected: " + ui.item.value);
+                }
+            });
+
+            $("#addFriendForm").submit(function(event) {
+                event.preventDefault();
+                const friendUsername = $("#friendUsername").val();
+                addFriend(friendUsername);
+            });
+        });
+
+        function addFriend(username) {
+            fetch('/add_friend', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `friend_username=${encodeURIComponent(username)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while adding the friend.');
+            });
+        }
+
+        function removeFriend(username) {
+            if (confirm(`Are you sure you want to remove ${username} from your friends?`)) {
+                fetch('/remove_friend', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `friend_username=${encodeURIComponent(username)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while removing the friend.');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

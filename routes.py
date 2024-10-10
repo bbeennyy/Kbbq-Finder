@@ -177,6 +177,9 @@ def send_invitation():
     if not recipient:
         return jsonify({'status': 'error', 'message': 'Recipient not found'}), 404
 
+    if recipient not in current_user.friends:
+        return jsonify({'status': 'error', 'message': 'You can only invite friends'}), 403
+
     restaurant = Restaurant.query.get(restaurant_id)
     if not restaurant:
         return jsonify({'status': 'error', 'message': 'Restaurant not found'}), 404
@@ -214,3 +217,66 @@ def respond_invitation(invitation_id, response):
     db.session.commit()
 
     return jsonify({'status': 'success', 'message': f'Invitation {invitation.status}'})
+
+@app.route('/add_friend', methods=['POST'])
+@login_required
+def add_friend():
+    friend_username = request.form.get('friend_username')
+    friend = User.query.filter_by(username=friend_username).first()
+
+    if not friend:
+        return jsonify({'status': 'error', 'message': 'User not found'}), 404
+
+    if friend == current_user:
+        return jsonify({'status': 'error', 'message': 'You cannot add yourself as a friend'}), 400
+
+    if friend in current_user.friends:
+        return jsonify({'status': 'error', 'message': 'User is already your friend'}), 400
+
+    current_user.add_friend(friend)
+    db.session.commit()
+
+    return jsonify({'status': 'success', 'message': 'Friend added successfully'})
+
+@app.route('/remove_friend', methods=['POST'])
+@login_required
+def remove_friend():
+    friend_username = request.form.get('friend_username')
+    friend = User.query.filter_by(username=friend_username).first()
+
+    if not friend:
+        return jsonify({'status': 'error', 'message': 'User not found'}), 404
+
+    if friend not in current_user.friends:
+        return jsonify({'status': 'error', 'message': 'User is not your friend'}), 400
+
+    current_user.remove_friend(friend)
+    db.session.commit()
+
+    return jsonify({'status': 'success', 'message': 'Friend removed successfully'})
+
+@app.route('/friends')
+@login_required
+def friends():
+    return render_template('friends.html', friends=current_user.friends)
+
+@app.route('/friend_suggestions')
+@login_required
+def friend_suggestions():
+    query = request.args.get('query', '')
+    suggestions = User.query.filter(
+        User.username.ilike(f'%{query}%'),
+        User.id != current_user.id,
+        ~User.id.in_([friend.id for friend in current_user.friends])
+    ).limit(5).all()
+    return jsonify([{'id': user.id, 'username': user.username} for user in suggestions])
+
+@app.route('/friend_autocomplete')
+@login_required
+def friend_autocomplete():
+    query = request.args.get('query', '')
+    friends = User.query.filter(
+        User.username.ilike(f'%{query}%'),
+        User.id.in_([friend.id for friend in current_user.friends])
+    ).limit(5).all()
+    return jsonify([{'id': user.id, 'username': user.username} for user in friends])
