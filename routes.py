@@ -246,10 +246,6 @@ def reschedule_invitation():
     invitation.date_time = new_date_time
     db.session.commit()
 
-    # Send notification to the sender
-    sender = User.query.get(invitation.sender_id)
-    # Here you would implement the logic to send a notification to the sender
-    # For now, we'll just print a message
     print(f"Notification: Invitation {invitation_id} has been rescheduled by {current_user.username}")
 
     return jsonify({'status': 'success', 'message': 'Invitation rescheduled successfully'})
