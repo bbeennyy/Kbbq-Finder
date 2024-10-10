@@ -293,8 +293,10 @@ function closeAcceptancePopup() {
 }
 
 function initFriendAutocomplete() {
+    console.log('initFriendAutocomplete function called');
     $("#recipientUsername").autocomplete({
         source: function(request, response) {
+            console.log('Autocomplete source function called with query:', request.term);
             $.ajax({
                 url: "/friend_autocomplete",
                 dataType: "json",
@@ -302,12 +304,16 @@ function initFriendAutocomplete() {
                     query: request.term
                 },
                 success: function(data) {
+                    console.log('Received autocomplete data:', data);
                     response(data.map(function(item) {
                         return {
                             label: item.username,
                             value: item.username
                         };
                     }));
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error in autocomplete AJAX request:', error);
                 }
             });
         },
@@ -316,6 +322,7 @@ function initFriendAutocomplete() {
             console.log("Selected: " + ui.item.value);
         }
     });
+    console.log('Autocomplete initialized on #recipientUsername');
 }
 
 document.addEventListener('DOMContentLoaded', function() {
