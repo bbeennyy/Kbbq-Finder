@@ -243,21 +243,6 @@ function recenterMap() {
     }
 }
 
-function showAcceptancePopup(title, message) {
-    const popup = document.getElementById('acceptancePopup');
-    const popupTitle = popup.querySelector('h3');
-    const popupMessage = document.getElementById('acceptanceMessage');
-    
-    popupTitle.textContent = title;
-    popupMessage.textContent = message;
-    popup.style.display = 'flex';
-}
-
-function closeAcceptancePopup() {
-    const popup = document.getElementById('acceptancePopup');
-    popup.style.display = 'none';
-}
-
 function respondInvitation(invitationId, response) {
     fetch(`/respond_invitation/${invitationId}/${response}`, {
         method: 'POST',
@@ -273,7 +258,25 @@ function respondInvitation(invitationId, response) {
             showAcceptancePopup('Error', 'Error: ' + data.message);
         }
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error:', error);
+        showAcceptancePopup('Error', 'An error occurred while processing your response.');
+    });
+}
+
+function showAcceptancePopup(title, message) {
+    const popup = document.getElementById('acceptancePopup');
+    const popupTitle = document.getElementById('acceptanceTitle');
+    const popupMessage = document.getElementById('acceptanceMessage');
+    
+    popupTitle.textContent = title;
+    popupMessage.textContent = message;
+    popup.style.display = 'flex';
+}
+
+function closeAcceptancePopup() {
+    const popup = document.getElementById('acceptancePopup');
+    popup.style.display = 'none';
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -282,7 +285,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('inviteModal').style.display = 'none';
     document.getElementById('acceptancePopup').style.display = 'none';
 
-    // Add event listeners to all "Invite Friend" buttons
     document.querySelectorAll('.invite-friend-btn').forEach(button => {
         button.addEventListener('click', function() {
             const restaurantId = this.getAttribute('data-restaurant-id');
