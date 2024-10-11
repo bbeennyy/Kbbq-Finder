@@ -1,5 +1,3 @@
-import { AdvancedMarkerElement } from "@googlemaps/markerclusterer";
-
 let map;
 let markers = [];
 let markerCluster;
@@ -25,7 +23,7 @@ window.initMap = function() {
 }
 
 function addMarker(restaurant) {
-    const marker = new AdvancedMarkerElement({
+    const marker = new google.maps.marker.AdvancedMarkerElement({
         position: { lat: restaurant.latitude, lng: restaurant.longitude },
         map: map,
         title: restaurant.name
@@ -54,8 +52,6 @@ function addMarker(restaurant) {
 
     markers.push(marker);
 }
-
-// Rest of the file remains unchanged
 
 function recenterMap() {
     if (map && markers.length > 0) {
