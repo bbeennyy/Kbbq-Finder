@@ -211,6 +211,7 @@ function initFriendAutocomplete() {
                     query: request.term
                 },
                 success: function(data) {
+                    console.log("Received data:", data);  // Log received data
                     if (data.length === 0) {
                         response([{ label: "No friends found", value: "" }]);
                     } else {
@@ -225,6 +226,14 @@ function initFriendAutocomplete() {
                 },
                 error: function(xhr, status, error) {
                     console.error('Error in autocomplete AJAX request:', error);
+                    console.error('Status:', status);
+                    console.error('Response:', xhr.responseText);
+                    try {
+                        var errorObj = JSON.parse(xhr.responseText);
+                        console.error('Parsed error:', errorObj);
+                    } catch (e) {
+                        console.error('Unable to parse error response');
+                    }
                     response([{ label: "Error fetching friends", value: "" }]);
                 }
             });
@@ -255,7 +264,6 @@ function sendInvitation() {
         return;
     }
 
-    // Validate if the recipient is a friend
     fetch('/check_friend', {
         method: 'POST',
         headers: {
