@@ -202,8 +202,10 @@ function clearInviteError() {
 }
 
 function initFriendAutocomplete() {
+    console.log("Initializing friend autocomplete");
     $("#recipientUsername").autocomplete({
         source: function(request, response) {
+            console.log("Autocomplete request:", request);
             $.ajax({
                 url: "/friend_autocomplete",
                 dataType: "json",
@@ -211,7 +213,8 @@ function initFriendAutocomplete() {
                     query: request.term
                 },
                 success: function(data) {
-                    console.log("Received data:", data);
+                    console.log("Received autocomplete data:", data);
+                    updateDebugLog("Received autocomplete data: " + JSON.stringify(data));
                     if (Array.isArray(data) && data.length === 0) {
                         response([{ label: "No friends found", value: "" }]);
                     } else if (Array.isArray(data)) {
@@ -224,6 +227,7 @@ function initFriendAutocomplete() {
                         }));
                     } else {
                         console.error('Unexpected data format:', data);
+                        updateDebugLog("Error: Unexpected data format");
                         response([{ label: "Error: Unexpected data format", value: "" }]);
                     }
                 },
@@ -232,11 +236,14 @@ function initFriendAutocomplete() {
                     console.error('Status:', status);
                     console.error('Response Text:', xhr.responseText);
                     console.error('Status Code:', xhr.status);
+                    updateDebugLog("Error in autocomplete request: " + error);
                     try {
                         var errorObj = JSON.parse(xhr.responseText);
                         console.error('Parsed error:', errorObj);
+                        updateDebugLog("Parsed error: " + JSON.stringify(errorObj));
                     } catch (e) {
                         console.error('Unable to parse error response:', e);
+                        updateDebugLog("Unable to parse error response");
                     }
                     response([{ label: "Error fetching friends", value: "" }]);
                 }
@@ -245,7 +252,8 @@ function initFriendAutocomplete() {
         minLength: 2,
         select: function(event, ui) {
             if (ui.item.value) {
-                console.log("Selected friend: " + ui.item.value);
+                console.log("Selected friend:", ui.item.value);
+                updateDebugLog("Selected friend: " + ui.item.value);
             } else {
                 event.preventDefault();
             }
@@ -255,6 +263,12 @@ function initFriendAutocomplete() {
             .append(`<div>${item.label}</div>`)
             .appendTo(ul);
     };
+}
+
+function updateDebugLog(message) {
+    var debugLog = $("#debug-log");
+    debugLog.append("<p>" + message + "</p>");
+    debugLog.scrollTop(debugLog[0].scrollHeight);
 }
 
 function sendInvitation() {
