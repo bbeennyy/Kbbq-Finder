@@ -89,7 +89,7 @@ function createRestaurantCard(restaurant) {
         <button onclick="toggleFavorite(${restaurant.id})" id="favorite-btn-${restaurant.id}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mr-2">
             Add to Favorites
         </button>
-        <button class="invite-friend-btn bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600" data-restaurant-id="${restaurant.id}">
+        <button onclick="showInviteForm(${restaurant.id})" class="invite-friend-btn bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600" data-restaurant-id="${restaurant.id}">
             Invite Friend
         </button>
     `;
@@ -475,53 +475,43 @@ function rescheduleInvitation() {
     });
 }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const inviteModal = document.getElementById('inviteModal');
-        const acceptancePopup = document.getElementById('acceptancePopup');
+document.addEventListener('DOMContentLoaded', function() {
+    const inviteModal = document.getElementById('inviteModal');
+    const acceptancePopup = document.getElementById('acceptancePopup');
+    
+    if (inviteModal) {
+        inviteModal.style.display = 'none';
+    }
+    
+    if (acceptancePopup) {
+        acceptancePopup.style.display = 'none';
+    }
 
-        if (inviteModal) {
-            inviteModal.style.display = 'none';
+    document.body.addEventListener('click', function(event) {
+        if (event.target.classList.contains('invite-friend-btn')) {
+            event.preventDefault();
+            const restaurantId = event.target.getAttribute('data-restaurant-id');
+            showInviteForm(restaurantId);
+        } else if (event.target.classList.contains('accept-invitation-btn') || event.target.classList.contains('decline-invitation-btn')) {
+            event.preventDefault();
+            const invitationId = event.target.getAttribute('data-invitation-id');
+            const response = event.target.classList.contains('accept-invitation-btn') ? 'accept' : 'decline';
+            respondInvitation(invitationId, response);
         }
-
-        if (acceptancePopup) {
-            acceptancePopup.style.display = 'none';
-        }
-
-        const inviteButtons = document.querySelectorAll('.invite-friend-btn');
-        if (inviteButtons.length > 0) {
-            inviteButtons.forEach(function(btn) {
-                btn.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    const restaurantId = this.getAttribute('data-restaurant-id');
-                    showInviteForm(restaurantId);
-                });
-            });
-        }
-
-        const invitationButtons = document.querySelectorAll('.accept-invitation-btn, .decline-invitation-btn');
-        if (invitationButtons.length > 0) {
-            invitationButtons.forEach(function(btn) {
-                btn.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    const invitationId = this.getAttribute('data-invitation-id');
-                    const response = this.classList.contains('accept-invitation-btn') ? 'accept' : 'decline';
-                    respondInvitation(invitationId, response);
-                });
-            });
-        }
-
-        const popupClose = document.querySelector('#acceptancePopup .close');
-        if (popupClose) {
-            popupClose.addEventListener('click', closeAcceptancePopup);
-        }
-
-        const inviteFormButton = document.querySelector('#inviteForm button');
-        if (inviteFormButton) {
-            inviteFormButton.addEventListener('click', sendInvitation);
-        }
-
-        initFriendAutocomplete();
     });
+
+    const closeAcceptanceBtn = document.querySelector('#acceptancePopup .close');
+    if (closeAcceptanceBtn) {
+        closeAcceptanceBtn.addEventListener('click', closeAcceptancePopup);
+    }
+
+    const sendInvitationBtn = document.querySelector('#inviteForm button');
+    if (sendInvitationBtn) {
+        sendInvitationBtn.addEventListener('click', sendInvitation);
+    }
+
+    initFriendAutocomplete();
+});
 
 function getCookie(name) {
     let cookieValue = null;
