@@ -89,7 +89,7 @@ function createRestaurantCard(restaurant) {
         <button onclick="toggleFavorite(${restaurant.id})" id="favorite-btn-${restaurant.id}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mr-2">
             Add to Favorites
         </button>
-        <button onclick="showInviteForm(${restaurant.id})" class="invite-friend-btn bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600" data-restaurant-id="${restaurant.id}">
+        <button class="invite-friend-btn bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600" data-restaurant-id="${restaurant.id}">
             Invite Friend
         </button>
     `;
@@ -475,7 +475,7 @@ function rescheduleInvitation() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+$(document).ready(function() {
     const inviteModal = document.getElementById('inviteModal');
     const acceptancePopup = document.getElementById('acceptancePopup');
     
@@ -487,28 +487,22 @@ document.addEventListener('DOMContentLoaded', function() {
         acceptancePopup.style.display = 'none';
     }
 
-    document.body.addEventListener('click', function(event) {
-        if (event.target.classList.contains('invite-friend-btn')) {
-            event.preventDefault();
-            const restaurantId = event.target.getAttribute('data-restaurant-id');
-            showInviteForm(restaurantId);
-        } else if (event.target.classList.contains('accept-invitation-btn') || event.target.classList.contains('decline-invitation-btn')) {
-            event.preventDefault();
-            const invitationId = event.target.getAttribute('data-invitation-id');
-            const response = event.target.classList.contains('accept-invitation-btn') ? 'accept' : 'decline';
-            respondInvitation(invitationId, response);
-        }
+    $(document).on('click', '.invite-friend-btn', function(event) {
+        event.preventDefault();
+        const restaurantId = $(this).data('restaurant-id');
+        showInviteForm(restaurantId);
     });
 
-    const closeAcceptanceBtn = document.querySelector('#acceptancePopup .close');
-    if (closeAcceptanceBtn) {
-        closeAcceptanceBtn.addEventListener('click', closeAcceptancePopup);
-    }
+    $(document).on('click', '.accept-invitation-btn, .decline-invitation-btn', function(event) {
+        event.preventDefault();
+        const invitationId = $(this).data('invitation-id');
+        const response = $(this).hasClass('accept-invitation-btn') ? 'accept' : 'decline';
+        respondInvitation(invitationId, response);
+    });
 
-    const sendInvitationBtn = document.querySelector('#inviteForm button');
-    if (sendInvitationBtn) {
-        sendInvitationBtn.addEventListener('click', sendInvitation);
-    }
+    $('#acceptancePopup .close').on('click', closeAcceptancePopup);
+
+    $('#inviteForm button').on('click', sendInvitation);
 
     initFriendAutocomplete();
 });
