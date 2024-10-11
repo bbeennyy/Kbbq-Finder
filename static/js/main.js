@@ -2,7 +2,7 @@ let map;
 let markers = [];
 let markerCluster;
 
-function initMap() {
+window.initMap = function() {
     map = new google.maps.Map(document.getElementById("map"), {
         center: { lat: 37.5665, lng: 126.9780 },
         zoom: 10,
@@ -211,7 +211,7 @@ function initFriendAutocomplete() {
                     query: request.term
                 },
                 success: function(data) {
-                    console.log("Received data:", data);  // Log received data
+                    console.log("Received data:", data);
                     if (data.length === 0) {
                         response([{ label: "No friends found", value: "" }]);
                     } else {
@@ -465,8 +465,6 @@ function rescheduleInvitation() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    initMap();
-    
     const inviteModal = document.getElementById('inviteModal');
     const acceptancePopup = document.getElementById('acceptancePopup');
     

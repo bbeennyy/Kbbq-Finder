@@ -6,6 +6,11 @@
     <title>Korean BBQ Restaurant Finder</title>
     <link rel='stylesheet' href='{{ url_for('static', filename='css/styles.css') }}'>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src='https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js'></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&libraries=places" defer></script>
+    <script src='{{ url_for('static', filename='js/main.js') }}' defer></script>
 </head>
 <body>
     <div class="top-menu">
@@ -76,11 +81,5 @@
             </div>
         </div>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-    <script src='https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js'></script>
-    <script src='{{ url_for('static', filename='js/main.js') }}'></script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap&libraries=places"></script>
 </body>
 </html>
