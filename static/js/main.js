@@ -211,10 +211,10 @@ function initFriendAutocomplete() {
                     query: request.term
                 },
                 success: function(data) {
-                    console.log("Received data:", data);  // Log received data
-                    if (data.length === 0) {
+                    console.log("Received data:", data);
+                    if (Array.isArray(data) && data.length === 0) {
                         response([{ label: "No friends found", value: "" }]);
-                    } else {
+                    } else if (Array.isArray(data)) {
                         response(data.map(function(item) {
                             return {
                                 label: item.username,
@@ -222,17 +222,21 @@ function initFriendAutocomplete() {
                                 id: item.id
                             };
                         }));
+                    } else {
+                        console.error('Unexpected data format:', data);
+                        response([{ label: "Error: Unexpected data format", value: "" }]);
                     }
                 },
                 error: function(xhr, status, error) {
                     console.error('Error in autocomplete AJAX request:', error);
                     console.error('Status:', status);
-                    console.error('Response:', xhr.responseText);
+                    console.error('Response Text:', xhr.responseText);
+                    console.error('Status Code:', xhr.status);
                     try {
                         var errorObj = JSON.parse(xhr.responseText);
                         console.error('Parsed error:', errorObj);
                     } catch (e) {
-                        console.error('Unable to parse error response');
+                        console.error('Unable to parse error response:', e);
                     }
                     response([{ label: "Error fetching friends", value: "" }]);
                 }
