@@ -351,9 +351,10 @@ body, html {
 }
 
 .invitation-list-container {
-    max-height: 70vh;
+    max-height: 60vh;
     overflow-y: auto;
     padding-right: 10px;
+    margin-bottom: 20px;
 }
 
 .invitation-list-container::-webkit-scrollbar {

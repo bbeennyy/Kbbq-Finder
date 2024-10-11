@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invitations - Korean BBQ Restaurant Finder</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/perfect-scrollbar@1.5.0/css/perfect-scrollbar.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://cdn.jsdelivr.net/npm/perfect-scrollbar@1.5.0/dist/perfect-scrollbar.min.js"></script>
 </head>
 <body>
     <div class="container mx-auto mt-8">
@@ -96,6 +101,22 @@
         </div>
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof PerfectScrollbar !== 'undefined') {
+                const containers = document.querySelectorAll('.invitation-list-container');
+                containers.forEach(container => {
+                    new PerfectScrollbar(container, {
+                        wheelSpeed: 2,
+                        wheelPropagation: true,
+                        minScrollbarLength: 20
+                    });
+                });
+            } else {
+                console.error("PerfectScrollbar is not defined. Make sure it's loaded before this script.");
+            }
+        });
+    </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
