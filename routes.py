@@ -325,3 +325,15 @@ def friend_autocomplete():
     result = [{'id': user.id, 'username': user.username} for user in friends]
     logging.info(f"Friend autocomplete returning: {result}")
     return jsonify(result)
+
+@app.route('/check_friend', methods=['POST'])
+@login_required
+def check_friend():
+    friend_username = request.form.get('friend_username')
+    friend = User.query.filter_by(username=friend_username).first()
+
+    if not friend:
+        return jsonify({'is_friend': False, 'message': 'User not found'})
+
+    is_friend = friend in current_user.friends
+    return jsonify({'is_friend': is_friend, 'message': 'Friend status checked'})

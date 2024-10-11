@@ -201,6 +201,49 @@ function clearInviteError() {
     errorElement.style.display = 'none';
 }
 
+function initFriendAutocomplete() {
+    $("#recipientUsername").autocomplete({
+        source: function(request, response) {
+            $.ajax({
+                url: "/friend_autocomplete",
+                dataType: "json",
+                data: {
+                    query: request.term
+                },
+                success: function(data) {
+                    if (data.length === 0) {
+                        response([{ label: "No friends found", value: "" }]);
+                    } else {
+                        response(data.map(function(item) {
+                            return {
+                                label: item.username,
+                                value: item.username,
+                                id: item.id
+                            };
+                        }));
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error in autocomplete AJAX request:', error);
+                    response([{ label: "Error fetching friends", value: "" }]);
+                }
+            });
+        },
+        minLength: 2,
+        select: function(event, ui) {
+            if (ui.item.value) {
+                console.log("Selected friend: " + ui.item.value);
+            } else {
+                event.preventDefault();
+            }
+        }
+    }).autocomplete("instance")._renderItem = function(ul, item) {
+        return $("<li>")
+            .append(`<div>${item.label}</div>`)
+            .appendTo(ul);
+    };
+}
+
 function sendInvitation() {
     const restaurantId = document.getElementById('restaurantId').value;
     const recipientUsername = document.getElementById('recipientUsername').value;
@@ -212,6 +255,31 @@ function sendInvitation() {
         return;
     }
 
+    // Validate if the recipient is a friend
+    fetch('/check_friend', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            'friend_username': recipientUsername
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.is_friend) {
+            submitInvitation(restaurantId, recipientUsername, message, dateTime);
+        } else {
+            displayInviteError('You can only invite friends. Please add this user as a friend first.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        displayInviteError('An error occurred while validating the friend. Please try again.');
+    });
+}
+
+function submitInvitation(restaurantId, recipientUsername, message, dateTime) {
     const formData = new FormData();
     formData.append('restaurant_id', restaurantId);
     formData.append('recipient_username', recipientUsername);
@@ -311,40 +379,6 @@ function closeAcceptancePopup() {
     setTimeout(() => {
         popup.style.display = 'none';
     }, 300);
-}
-
-function initFriendAutocomplete() {
-    $("#recipientUsername").autocomplete({
-        source: function(request, response) {
-            $.ajax({
-                url: "/friend_autocomplete",
-                dataType: "json",
-                data: {
-                    query: request.term
-                },
-                success: function(data) {
-                    response(data.map(function(item) {
-                        return {
-                            label: item.username,
-                            value: item.username,
-                            id: item.id
-                        };
-                    }));
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error in autocomplete AJAX request:', error);
-                }
-            });
-        },
-        minLength: 2,
-        select: function(event, ui) {
-            console.log("Selected: " + ui.item.value);
-        }
-    }).autocomplete("instance")._renderItem = function(ul, item) {
-        return $("<li>")
-            .append(`<div>${item.label}</div>`)
-            .appendTo(ul);
-    };
 }
 
 function showRescheduleForm(invitationId) {
