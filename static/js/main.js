@@ -246,7 +246,7 @@ function initFriendAutocomplete() {
         select: function(event, ui) {
             console.log("Selected friend:", ui.item);
             $("#recipientUsername").val(ui.item.value);
-            return false;
+            return false;  // Prevent default behavior
         }
     }).autocomplete("instance")._renderItem = function(ul, item) {
         console.log("Rendering item:", item);
