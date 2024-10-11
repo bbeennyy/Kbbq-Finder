@@ -224,53 +224,31 @@ function initFriendAutocomplete() {
                 },
                 success: function(data) {
                     console.log("Received autocomplete data:", data);
-                    updateDebugLog("Received autocomplete data: " + JSON.stringify(data));
-                    if (Array.isArray(data) && data.length === 0) {
-                        response([{ label: "No friends found", value: "" }]);
-                    } else if (Array.isArray(data)) {
-                        response(data.map(function(item) {
-                            return {
-                                label: item.username,
-                                value: item.username,
-                                id: item.id
-                            };
-                        }));
-                    } else {
-                        console.error('Unexpected data format:', data);
-                        updateDebugLog("Error: Unexpected data format");
-                        response([{ label: "Error: Unexpected data format", value: "" }]);
-                    }
+                    var mappedData = data.map(function(item) {
+                        return {
+                            label: item.username,
+                            value: item.username,
+                            id: item.id
+                        };
+                    });
+                    console.log("Mapped autocomplete data:", mappedData);
+                    response(mappedData);
                 },
                 error: function(xhr, status, error) {
-                    console.error('Error in autocomplete AJAX request:', error);
-                    console.error('Status:', status);
-                    console.error('Response Text:', xhr.responseText);
-                    console.error('Status Code:', xhr.status);
-                    updateDebugLog("Error in autocomplete request: " + error);
-                    try {
-                        var errorObj = JSON.parse(xhr.responseText);
-                        console.error('Parsed error:', errorObj);
-                        updateDebugLog("Parsed error: " + JSON.stringify(errorObj));
-                    } catch (e) {
-                        console.error('Unable to parse error response:', e);
-                        updateDebugLog("Unable to parse error response");
-                    }
-                    response([{ label: "Error fetching friends", value: "" }]);
+                    console.error("Autocomplete error:", error);
+                    console.error("Status:", status);
+                    console.error("Response:", xhr.responseText);
                 }
             });
         },
         minLength: 2,
         select: function(event, ui) {
-            if (ui.item.value) {
-                console.log("Selected friend:", ui.item.value);
-                updateDebugLog("Selected friend: " + ui.item.value);
-            } else {
-                event.preventDefault();
-            }
+            console.log("Selected friend:", ui.item.value);
         }
     }).autocomplete("instance")._renderItem = function(ul, item) {
+        console.log("Rendering item:", item);
         return $("<li>")
-            .append(`<div>${item.label}</div>`)
+            .append("<div>" + item.label + "</div>")
             .appendTo(ul);
     };
 }

@@ -316,6 +316,25 @@ body, html {
     padding: 2px 0;
 }
 
+.ui-autocomplete {
+    position: absolute;
+    z-index: 1000;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.ui-menu-item {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.ui-menu-item:hover {
+    background-color: #f0f0f0;
+}
+
 @media (max-width: 768px) {
     .top-menu {
         flex-direction: column;
