@@ -238,12 +238,15 @@ function initFriendAutocomplete() {
                     console.error("Autocomplete error:", error);
                     console.error("Status:", status);
                     console.error("Response:", xhr.responseText);
+                    response([]);
                 }
             });
         },
         minLength: 2,
         select: function(event, ui) {
-            console.log("Selected friend:", ui.item.value);
+            console.log("Selected friend:", ui.item);
+            $("#recipientUsername").val(ui.item.value);
+            return false;
         }
     }).autocomplete("instance")._renderItem = function(ul, item) {
         console.log("Rendering item:", item);
