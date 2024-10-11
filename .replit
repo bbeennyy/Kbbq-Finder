@@ -1,4 +1,4 @@
-modules = ["python-3.11", "nodejs-20"]
+modules = ["python-3.11"]
 
 [nix]
 channel = "stable-24_05"
@@ -13,10 +13,10 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Flask App"
+args = "Flask Server"
 
 [[workflows.workflow]]
-name = "Flask App"
+name = "Flask Server"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -24,8 +24,8 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python3 main.py"
-waitForPort = 5001
+args = "python main.py"
+waitForPort = 5000
 
 [deployment]
 deploymentTarget = "cloudrun"
@@ -34,7 +34,3 @@ run = ["sh", "-c", "python3 main.py"]
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 5001
-externalPort = 3000
