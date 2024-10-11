@@ -173,6 +173,7 @@ function showInviteForm(restaurantId) {
     };
 
     initFriendAutocomplete();
+    console.log("Invite form shown and autocomplete initialized");
 }
 
 function closeInviteForm() {
@@ -247,6 +248,13 @@ function initFriendAutocomplete() {
             console.log("Selected friend:", ui.item);
             $("#recipientUsername").val(ui.item.value);
             return false;  // Prevent default behavior
+        },
+        open: function() {
+            console.log("Autocomplete dropdown opened");
+            $(this).autocomplete('widget').css('z-index', 9999);
+        },
+        close: function() {
+            console.log("Autocomplete dropdown closed");
         }
     }).autocomplete("instance")._renderItem = function(ul, item) {
         console.log("Rendering item:", item);

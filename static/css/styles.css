@@ -318,23 +318,32 @@ body, html {
 
 .ui-autocomplete {
     position: absolute;
-    z-index: 1000;
+    z-index: 9999;
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 4px;
     max-height: 200px;
     overflow-y: auto;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    width: auto !important;
+    min-width: 200px;
 }
 
 .ui-menu-item {
     padding: 8px 12px;
     cursor: pointer;
-    font-size: 14px;
+    transition: background-color 0.2s ease;
 }
 
 .ui-menu-item:hover {
     background-color: #f0f0f0;
+}
+
+.ui-state-active,
+.ui-widget-content .ui-state-active {
+    background-color: #e0e0e0;
+    border: none;
 }
 
 .ui-helper-hidden-accessible {
