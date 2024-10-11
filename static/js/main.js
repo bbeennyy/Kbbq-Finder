@@ -201,6 +201,16 @@ function clearInviteError() {
     errorElement.style.display = 'none';
 }
 
+function updateDebugLog(message) {
+    var debugLog = $("#debug-log");
+    if (debugLog.length > 0) {
+        debugLog.append("<p>" + message + "</p>");
+        debugLog.scrollTop(debugLog[0].scrollHeight);
+    } else {
+        console.log("Debug log:", message);
+    }
+}
+
 function initFriendAutocomplete() {
     console.log("Initializing friend autocomplete");
     $("#recipientUsername").autocomplete({
@@ -263,12 +273,6 @@ function initFriendAutocomplete() {
             .append(`<div>${item.label}</div>`)
             .appendTo(ul);
     };
-}
-
-function updateDebugLog(message) {
-    var debugLog = $("#debug-log");
-    debugLog.append("<p>" + message + "</p>");
-    debugLog.scrollTop(debugLog[0].scrollHeight);
 }
 
 function sendInvitation() {
