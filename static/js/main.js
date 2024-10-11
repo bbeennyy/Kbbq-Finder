@@ -475,37 +475,53 @@ function rescheduleInvitation() {
     });
 }
 
-$(document).ready(function() {
-    const inviteModal = document.getElementById('inviteModal');
-    const acceptancePopup = document.getElementById('acceptancePopup');
-    
-    if (inviteModal) {
-        inviteModal.style.display = 'none';
-    }
-    
-    if (acceptancePopup) {
-        acceptancePopup.style.display = 'none';
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+        const inviteModal = document.getElementById('inviteModal');
+        const acceptancePopup = document.getElementById('acceptancePopup');
 
-    $(document).on('click', '.invite-friend-btn', function(event) {
-        event.preventDefault();
-        const restaurantId = $(this).data('restaurant-id');
-        showInviteForm(restaurantId);
+        if (inviteModal) {
+            inviteModal.style.display = 'none';
+        }
+
+        if (acceptancePopup) {
+            acceptancePopup.style.display = 'none';
+        }
+
+        const inviteButtons = document.querySelectorAll('.invite-friend-btn');
+        if (inviteButtons.length > 0) {
+            inviteButtons.forEach(function(btn) {
+                btn.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const restaurantId = this.getAttribute('data-restaurant-id');
+                    showInviteForm(restaurantId);
+                });
+            });
+        }
+
+        const invitationButtons = document.querySelectorAll('.accept-invitation-btn, .decline-invitation-btn');
+        if (invitationButtons.length > 0) {
+            invitationButtons.forEach(function(btn) {
+                btn.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const invitationId = this.getAttribute('data-invitation-id');
+                    const response = this.classList.contains('accept-invitation-btn') ? 'accept' : 'decline';
+                    respondInvitation(invitationId, response);
+                });
+            });
+        }
+
+        const popupClose = document.querySelector('#acceptancePopup .close');
+        if (popupClose) {
+            popupClose.addEventListener('click', closeAcceptancePopup);
+        }
+
+        const inviteFormButton = document.querySelector('#inviteForm button');
+        if (inviteFormButton) {
+            inviteFormButton.addEventListener('click', sendInvitation);
+        }
+
+        initFriendAutocomplete();
     });
-
-    $(document).on('click', '.accept-invitation-btn, .decline-invitation-btn', function(event) {
-        event.preventDefault();
-        const invitationId = $(this).data('invitation-id');
-        const response = $(this).hasClass('accept-invitation-btn') ? 'accept' : 'decline';
-        respondInvitation(invitationId, response);
-    });
-
-    $('#acceptancePopup .close').on('click', closeAcceptancePopup);
-
-    $('#inviteForm button').on('click', sendInvitation);
-
-    initFriendAutocomplete();
-});
 
 function getCookie(name) {
     let cookieValue = null;
