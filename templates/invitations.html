@@ -10,6 +10,8 @@
     <div class="container mx-auto mt-8">
         <h1 class="text-2xl font-bold mb-4">Invitations</h1>
         
+        <a href="{{ url_for('index') }}" id="backToMainButton" class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4">Back to Search</a>
+        
         <h2 class="text-xl font-bold mb-2">Accepted Invitations</h2>
         <div class="invitation-list-container mb-8">
             {% if accepted_invitations %}
@@ -68,8 +70,6 @@
                 <p>No sent invitations.</p>
             {% endif %}
         </div>
-
-        <a href="{{ url_for('index') }}" id="backToMainButton" class="mt-8 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Back to Search</a>
     </div>
 
     <!-- Reschedule Modal -->
