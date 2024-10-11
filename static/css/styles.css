@@ -350,6 +350,29 @@ body, html {
     display: none;
 }
 
+.invitation-list-container {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.invitation-list-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.invitation-list-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.invitation-list-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.invitation-list-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
 @media (max-width: 768px) {
     .top-menu {
         flex-direction: column;

@@ -11,59 +11,65 @@
         <h1 class="text-2xl font-bold mb-4">Invitations</h1>
         
         <h2 class="text-xl font-bold mb-2">Accepted Invitations</h2>
-        {% if accepted_invitations %}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-            {% for invitation in accepted_invitations %}
-                <div class="accepted-invitation-card bg-white shadow rounded p-4">
-                    <h3 class="text-lg font-semibold mb-2">{{ invitation.restaurant.name }}</h3>
-                    <p><strong>Date and Time:</strong> {{ invitation.date_time.strftime('%Y-%m-%d %H:%M') }}</p>
-                    <p><strong>With:</strong> {{ invitation.sender.username }}</p>
+        <div class="invitation-list-container mb-8">
+            {% if accepted_invitations %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for invitation in accepted_invitations %}
+                    <div class="accepted-invitation-card bg-white shadow rounded p-4">
+                        <h3 class="text-lg font-semibold mb-2">{{ invitation.restaurant.name }}</h3>
+                        <p><strong>Date and Time:</strong> {{ invitation.date_time.strftime('%Y-%m-%d %H:%M') }}</p>
+                        <p><strong>With:</strong> {{ invitation.sender.username }}</p>
+                    </div>
+                {% endfor %}
                 </div>
-            {% endfor %}
-            </div>
-        {% else %}
-            <p class="mb-8">No accepted invitations.</p>
-        {% endif %}
+            {% else %}
+                <p class="mb-8">No accepted invitations.</p>
+            {% endif %}
+        </div>
 
         <h2 class="text-xl font-bold mb-2">Received Invitations</h2>
-        {% if received_invitations %}
-            <ul class="mb-8" id="receivedInvitationsList">
-            {% for invitation in received_invitations %}
-                <li class="mb-4 p-4 bg-white shadow rounded" data-invitation-id="{{ invitation.id }}">
-                    <p><strong>From:</strong> {{ invitation.sender.username }}</p>
-                    <p><strong>Restaurant:</strong> {{ invitation.restaurant.name }}</p>
-                    <p><strong>Message:</strong> {{ invitation.message }}</p>
-                    <p><strong>Date and Time:</strong> {{ invitation.date_time.strftime('%Y-%m-%d %H:%M') }}</p>
-                    <div class="mt-2">
-                        <button class="accept-invitation-btn bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" data-invitation-id="{{ invitation.id }}">Accept</button>
-                        <button class="decline-invitation-btn bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 ml-2" data-invitation-id="{{ invitation.id }}">Decline</button>
-                        <button onclick="showRescheduleForm({{ invitation.id }})" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 ml-2">Reschedule</button>
-                    </div>
-                </li>
-            {% endfor %}
-            </ul>
-        {% else %}
-            <p class="mb-8">No pending invitations.</p>
-        {% endif %}
+        <div class="invitation-list-container mb-8">
+            {% if received_invitations %}
+                <ul id="receivedInvitationsList">
+                {% for invitation in received_invitations %}
+                    <li class="mb-4 p-4 bg-white shadow rounded" data-invitation-id="{{ invitation.id }}">
+                        <p><strong>From:</strong> {{ invitation.sender.username }}</p>
+                        <p><strong>Restaurant:</strong> {{ invitation.restaurant.name }}</p>
+                        <p><strong>Message:</strong> {{ invitation.message }}</p>
+                        <p><strong>Date and Time:</strong> {{ invitation.date_time.strftime('%Y-%m-%d %H:%M') }}</p>
+                        <div class="mt-2">
+                            <button class="accept-invitation-btn bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" data-invitation-id="{{ invitation.id }}">Accept</button>
+                            <button class="decline-invitation-btn bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 ml-2" data-invitation-id="{{ invitation.id }}">Decline</button>
+                            <button onclick="showRescheduleForm({{ invitation.id }})" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 ml-2">Reschedule</button>
+                        </div>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p class="mb-8">No pending invitations.</p>
+            {% endif %}
+        </div>
 
         <h2 class="text-xl font-bold mb-2">Sent Invitations</h2>
-        {% if sent_invitations %}
-            <ul>
-            {% for invitation in sent_invitations %}
-                <li class="mb-4 p-4 bg-white shadow rounded">
-                    <p><strong>To:</strong> {{ invitation.recipient.username }}</p>
-                    <p><strong>Restaurant:</strong> {{ invitation.restaurant.name }}</p>
-                    <p><strong>Message:</strong> {{ invitation.message }}</p>
-                    <p><strong>Date and Time:</strong> {{ invitation.date_time.strftime('%Y-%m-%d %H:%M') }}</p>
-                    <p><strong>Status:</strong> {{ invitation.status.capitalize() }}</p>
-                </li>
-            {% endfor %}
-            </ul>
-        {% else %}
-            <p>No sent invitations.</p>
-        {% endif %}
+        <div class="invitation-list-container">
+            {% if sent_invitations %}
+                <ul>
+                {% for invitation in sent_invitations %}
+                    <li class="mb-4 p-4 bg-white shadow rounded">
+                        <p><strong>To:</strong> {{ invitation.recipient.username }}</p>
+                        <p><strong>Restaurant:</strong> {{ invitation.restaurant.name }}</p>
+                        <p><strong>Message:</strong> {{ invitation.message }}</p>
+                        <p><strong>Date and Time:</strong> {{ invitation.date_time.strftime('%Y-%m-%d %H:%M') }}</p>
+                        <p><strong>Status:</strong> {{ invitation.status.capitalize() }}</p>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>No sent invitations.</p>
+            {% endif %}
+        </div>
 
-        <a href="{{ url_for('index') }}" class="mt-8 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Back to Search</a>
+        <a href="{{ url_for('index') }}" id="backToMainButton" class="mt-8 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Back to Search</a>
     </div>
 
     <!-- Reschedule Modal -->

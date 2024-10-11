@@ -247,7 +247,7 @@ function initFriendAutocomplete() {
         select: function(event, ui) {
             console.log("Selected friend:", ui.item);
             $("#recipientUsername").val(ui.item.value);
-            return false;  // Prevent default behavior
+            return false;
         },
         open: function() {
             console.log("Autocomplete dropdown opened");
@@ -476,8 +476,6 @@ function rescheduleInvitation() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    initMap();
-    
     const inviteModal = document.getElementById('inviteModal');
     const acceptancePopup = document.getElementById('acceptancePopup');
     
